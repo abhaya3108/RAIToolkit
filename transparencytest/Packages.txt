@@ -1,0 +1,4 @@
+Python 3.6.13 :: Anaconda, Inc.
+Django-3.2.13
+pip install shap
+pip install matplotlib

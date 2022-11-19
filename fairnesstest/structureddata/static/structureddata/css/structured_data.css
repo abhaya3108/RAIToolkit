@@ -1,0 +1,545 @@
+#labelbiasContent{
+    /* margin: 2%; */
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    padding: 2rem;
+}
+
+#labelbiasContent .row{
+    margin: 0;
+}
+
+.labelbiasHeading{
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    color: #000;
+    background-color: white;
+    /* border-bottom: 0.313rem solid #A100FF; */
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 5px;
+}
+
+#structureddata_form_div{
+    margin-bottom: 1rem;
+    padding: 0;
+}
+
+#structureddata_form_div .form-group{padding: 0;}
+
+#id_common_dataset_file{
+    width: 100%;
+    box-shadow: 2px 2px #a100ff;
+    border: none;
+}
+
+#upload_dataset_file_btn{
+    box-shadow: 5px 5px #d2d2d2d2;
+    border: none;
+    letter-spacing: 3px;
+    color: #000;
+    /* text-shadow: 1px 1px; */
+    font-weight: 700;
+    background-color: white;
+}
+#upload_dataset_file_btn:hover{
+    background-color: #A100FF;
+    color: white;
+}
+
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    padding: 0;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    /* border-right: 2px solid lightgray; */
+    width: 100%;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    /* background-color: #ddd; */
+    background-color: #A100FF;
+    color: white;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: white;
+    /* border-bottom: 2px solid #A100FF; */
+    font-weight: 700;
+
+    color: #000;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    /* padding: 6px 12px; */
+    border: 1px solid #ccc;
+    border-top: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    padding: 1rem 2rem;
+    min-height: 17rem;
+}
+
+/* Style the close button */
+.topright {
+    float: right;
+    cursor: pointer;
+    font-size: 28px;
+}
+
+input[type=number] {
+    border: none;
+    border-bottom: 2px solid black;
+  }
+
+.topright:hover {color: red;}
+
+.steps{
+    margin-bottom: 25px;
+    margin-right: 2rem;
+}
+
+.steps p, label{
+    margin: 0;
+    font-weight: 600;
+}
+
+.form-control{
+    width: 50%;
+}
+
+#samplebias-selectfeatures,
+#aggregationbias-selectfeatures,
+#aggregationbias-ignore-columns,
+#aggregationbias-bin-columns
+{
+    width: 50%;
+}
+
+#samplebias-selectfeatures, 
+#prelablebias-selectcatgfeatures, 
+#prelablebias-selectcontfeatures, 
+#prelablebias-selecttarget,
+#exclusionbias-selectfeatures,
+#exclusionbias-selecttarget,
+#postlablebias-selectfeature,
+#postlablebias-selectvariable,
+#aggregationbias-selectfeatures,
+#aggregationbias-ignore-columns,
+#aggregationbias-bin-columns
+{
+    max-height: 7rem;
+    overflow-y: scroll;
+    border-bottom: 1px solid #000;
+    border-top: 1px solid #000;
+    padding: 0.2rem 1rem;
+    /* box-shadow: 0px 0px 5px inset; */
+}
+
+#samplebias-selectfeatures span, 
+#prelablebias-selectcatgfeatures span, 
+#prelablebias-selectcontfeatures span, 
+#prelablebias-selecttarget span,
+#exclusionbias-selectfeatures span,
+#exclusionbias-selecttarget span,
+#postlablebias-selectfeature span,
+#postlablebias-selectvariable span,
+#aggregationbias-selectfeatures span,
+#aggregationbias-ignore-columns span,
+#aggregationbias-bin-columns span
+{
+    font-size: 14px;
+}
+
+#samplebias-selectfeatures span label, 
+#prelablebias-selectcatgfeatures span label, 
+#prelablebias-selectcontfeatures span label, 
+#prelablebias-selecttarget span label,
+#exclusionbias-selectfeatures span label,
+#exclusionbias-selecttarget span label,
+#postlablebias-selectfeature span label,
+#postlablebias-selectvariable span label,
+#aggregationbias-selectfeatures span label,
+#aggregationbias-ignore-columns span label,
+#aggregationbias-bin-columns span label
+{
+    margin: 0;
+}
+
+/* Custom Scrollbar Css Start */
+#samplebias-selectfeatures::-webkit-scrollbar, 
+#prelablebias-selectcatgfeatures::-webkit-scrollbar, 
+#prelablebias-selectcontfeatures::-webkit-scrollbar,
+#prelablebias-selecttarget::-webkit-scrollbar,
+#exclusionbias-selectfeatures::-webkit-scrollbar,
+#exclusionbias-selecttarget::-webkit-scrollbar,
+#postlablebias-selectfeature::-webkit-scrollbar,
+#postlablebias-selectvariable::-webkit-scrollbar,
+#aggregationbias-selectfeatures::-webkit-scrollbar,
+#aggregationbias-ignore-columns::-webkit-scrollbar,
+#aggregationbias-bin-columns::-webkit-scrollbar,
+.infor::-webkit-scrollbar
+{width: 10px;}
+
+#samplebias-selectfeatures::-webkit-scrollbar-track,
+#prelablebias-selectcatgfeatures::-webkit-scrollbar-track, 
+#prelablebias-selectcontfeatures::-webkit-scrollbar-track,
+#prelablebias-selecttarget::-webkit-scrollbar-track,
+#exclusionbias-selectfeatures::-webkit-scrollbar-track,
+#exclusionbias-selecttarget::-webkit-scrollbar-track,
+#postlablebias-selectfeature::-webkit-scrollbar-track,
+#postlablebias-selectvariable::-webkit-scrollbar-track,
+#aggregationbias-selectfeatures::-webkit-scrollbar-track, 
+#aggregationbias-ignore-columns::-webkit-scrollbar-track,
+#aggregationbias-bin-columns::-webkit-scrollbar-track,
+.infor::-webkit-scrollbar-track
+{background: #A100FF; }
+
+#samplebias-selectfeatures::-webkit-scrollbar-thumb,
+#prelablebias-selectcatgfeatures::-webkit-scrollbar-thumb, 
+#prelablebias-selectcontfeatures::-webkit-scrollbar-thumb,
+#prelablebias-selecttarget::-webkit-scrollbar-thumb,
+#exclusionbias-selectfeatures::-webkit-scrollbar-thumb,
+#exclusionbias-selecttarget::-webkit-scrollbar-thumb,
+#postlablebias-selectfeature::-webkit-scrollbar-thumb,
+#postlablebias-selectvariable::-webkit-scrollbar-thumb,
+#aggregationbias-selectfeatures::-webkit-scrollbar-thumb,
+#aggregationbias-ignore-columns::-webkit-scrollbar-thumb,
+#aggregationbias-bin-columns::-webkit-scrollbar-thumb,
+.infor::-webkit-scrollbar-thumb
+{background: #d2d2d2;border-radius: 10px;}
+
+#samplebias-selectfeatures::-webkit-scrollbar-thumb:hover,
+#prelablebias-selectcatgfeatures::-webkit-scrollbar-thumb:hover, 
+#prelablebias-selectcontfeatures::-webkit-scrollbar-thumb:hover,
+#prelablebias-selecttarget::-webkit-scrollbar-thumb:hover,
+#exclusionbias-selectfeatures::-webkit-scrollbar-thumb:hover,
+#exclusionbias-selecttarget::-webkit-scrollbar-thumb:hover,
+#postlablebias-selectfeature::-webkit-scrollbar-thumb:hover,
+#postlablebias-selectvariable::-webkit-scrollbar-thumb:hover,
+#aggregationbias-selectfeatures::-webkit-scrollbar-thumb:hover,
+#aggregationbias-ignore-columns::-webkit-scrollbar-thumb:hover,
+#aggregationbias-bin-columns::-webkit-scrollbar-thumb:hover,
+.infor::-webkit-scrollbar-thumb:hover
+{background: #555;}
+/* Custom Scrollbar Css End */
+
+
+#samplebias-submitbtn, #labelbias-submitbtn, #exclusionbias-submitbtn, #postlablebias-submitbtn, #postlablebias-reportbtn, #aggregationbias-submitbtn{
+    margin-top: 3%;
+    border: none;
+    letter-spacing: 3px;
+    color: #000;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+#samplebias-submitbtn:hover, #labelbias-submitbtn:hover, #exclusionbias-submitbtn:hover, #postlablebias-submitbtn:hover, #postlablebias-reportbtn:hover, #aggregationbias-submitbtn:hover{
+    background-color: #A100FF;
+    color: white;
+}
+
+#labelbias_images{
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0px 0px 10px inset;
+    overflow: scroll;
+    border: 3px solid;
+    cursor: pointer;
+    border-radius: 5px;
+}
+/* Custom Scrollbar Css Start */
+#labelbias_images::-webkit-scrollbar {
+    width: 10px;
+    height: 7px;
+}
+#labelbias_images::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+#labelbias_images::-webkit-scrollbar-thumb {
+    background: #A100FF;  
+    border-radius: 10px;
+}
+#labelbias_images::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+/* Custom Scrollbar Css End */
+
+#labelbias_images img{
+    width: 100%;
+    margin-top: 1rem;
+}
+#exclusionbias_images img{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* <!----------------------------------------- Post-Prediction Lable Bias CSS -----------------------------------------> */
+#output_div p{
+    margin: 0;
+    font-weight: bold;
+}
+
+form label{
+    font-weight: 700;
+    margin: 0;
+}
+
+form small{
+    color: red;
+    font-weight: 700;
+}
+
+#generateReport_div{
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* #submit_btn, #generateReport_btn{
+    box-shadow: 5px 5px #d2d2d2d2;
+    border: none;
+    letter-spacing: 3px;
+    color: white;
+    text-shadow: 1px 1px;
+    font-weight: 700;
+}
+#submit_btn:hover{
+    background-color: #763E9B;
+}
+
+#generateReport_btn:hover{
+    background-color: #763E9B;
+    color: white;
+} */
+
+/* #post-prediction_outputDiv1{
+    margin-top: 2rem;
+}
+
+#post-prediction_outputDiv2{
+    margin-top: 2rem;
+} */
+
+#structureddata_output_div{
+    border: 1px solid #ccc;
+    /* border-top: none; */
+    background-color: #ffffff;
+    /* box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%); */
+    padding: 1rem;
+    margin-top: 2rem;
+    /* border-radius: 5px; */
+    display: none;
+}
+
+#structureddata_output_div h3{
+    margin-bottom: 2rem;
+    color: white;
+    /* text-shadow: 1px 1px; */
+    /* border-bottom: 2px solid #000; */
+    font-weight: 700;
+    background-color: #A100FF;
+    letter-spacing: 3px;
+    word-spacing: 5px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+.bias_report_desc{margin-bottom: 5rem;}
+
+.bias_report_desc h4{
+    border-bottom: 2px solid #5a5a5a;
+    width: 50%;
+}
+
+.bias_report_desc p{
+    margin: 0;
+    color: #5a5a5a;
+    font-size: 13px;
+}
+
+.bias_report_desc small{
+    font-weight: 700;
+    color: #5a5a5a;
+}
+
+.bias_report_desc span{
+    /* float: right; */
+    color: #A100FF;
+    cursor: pointer;
+    font-size: 17px;
+    margin-left: 0.5rem;
+}
+
+.bias_report_desc span:hover{color: #000;}
+
+.moreinfo_div{
+    display: none;
+    font-size: 12px;
+    color: #A100FF;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.bias_output{
+    /* box-shadow: 0px 0px 3px inset; */
+    border-radius: 5px;
+    /* border: 5px solid black; */
+    color: #000;
+    /* margin-bottom: 2rem; */
+    padding: 1rem;
+
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    background-color: #f3f3f3;
+    margin: 1rem 0;
+}
+
+
+
+.table{font-size: 14px;}
+table, th, td {
+    border: 1px solid black;
+}
+.table th{
+    text-align: left;
+}
+
+.icon{
+    color: white;
+    background-color: lightgray;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    width: 18px;
+    font-size: 14px;
+}
+
+
+
+.generalguidance_div{
+    margin-bottom: 2rem;
+}
+
+.generalguidance_div p{margin: 0;}
+
+.infor{
+    max-height: 150px;
+    overflow-y: scroll;
+    box-shadow: 0px 0px 5px inset;
+    padding: 0.5rem;
+    border-radius: 5px;
+    /* border: 5px solid black; */
+    color: #000;  
+    font-weight: normal;
+}
+
+.infor p{
+    font-weight: normal;
+    font-size: 13px;
+}
+
+
+
+#samplebias_img{
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0px 0px 5px inset;
+    overflow: scroll;
+    border: 3px solid;
+    cursor: pointer;
+    border-radius: 5px;
+}
+/* Custom Scrollbar Css Start */
+#samplebias_img::-webkit-scrollbar {
+    width: 10px;
+    height: 7px;
+}
+#samplebias_img::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+#samplebias_img::-webkit-scrollbar-thumb {
+    background: #A100FF;  
+    border-radius: 10px;
+}
+#samplebias_img::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+/* Custom Scrollbar Css End */
+
+#samplebias_img img{
+    width: 100%;
+}
+
+p {
+    height: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    width: 80%;
+  }
+
+/* spinner */
+#spinner_div{
+    text-align: center;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+#post-prediction_outputDiv1, #post-prediction_outputDiv2{
+    background-color: #ffffff;
+    border: 1px solid #000;
+    margin: 1rem 0;
+}
+
+#postlablebias-backBtn{
+    display: none;
+    background-color: #A100FF;
+    border: 0;
+    color: #fff;
+    padding: 3px 1rem;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    margin-bottom: 1rem;
+}
+
+#postlablebias-backBtn:hover{
+    color: #000;
+    background-color: white;
+}
+
+.mpld3-figure g{
+    cursor: pointer;
+}

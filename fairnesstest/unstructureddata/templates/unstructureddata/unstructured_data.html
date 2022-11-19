@@ -1,0 +1,258 @@
+{% extends 'structureddata/base.html' %}
+{% load static %}
+
+{% block head_block %}
+    <link rel="stylesheet" href="{% static 'structureddata/css/structured_data.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock head_block %}
+
+{% block content %}
+    {% static "structureddata/label_bias_images" as labelbiasurl %}
+    {% static "structureddata/exclusion_bias_images" as exclusionbiasurl %}
+    {% static "structureddata/images/sample_bias_images" as samplebias_imgurl %}
+    <div id="labelbiasContent">
+
+        <div style="text-align: center;">
+            <h3 class="labelbiasHeading">Bias Analysis</h3>
+        </div>
+        <!-- <div style="text-align: center;">
+            <h3 class="labelbiasHeading" style="text-shadow: 1px 1px; background-color: #5a5a5a; color: white;">FAIRNESS - STRUCTURED DATA</h3>
+        </div> -->
+
+        <div class="row">
+
+            <div id="structureddata_form_div">
+                {% if unstructureddata_form %}
+                    <form action="" method="POST" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- {{form.as_p}} -->
+                        
+                        {% if unstructureddata_form.non_field_errors %}
+                            {% for error in unstructureddata_form.non_field_errors %}
+                                <p class="alert alert-danger my-3">{{error}}</p>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <div class="row">
+                            {% for fm in unstructureddata_form %}
+                                <div class="form-group col-sm-10">
+                                    {{fm.label_tag}} {{fm}} 
+                                    <small>{{fm.errors|striptags}}</small>
+                                </div>
+                            {% endfor %}
+                            <div class="col-sm-2" style="text-align: center; padding: 1.5rem;">
+                                <input type="submit" class="btn btn-primary" value="UPLOAD" id="upload_dataset_file_btn">
+                            </div>
+                        </div>
+                    </form>
+
+                {% endif %}
+            </div>
+
+            {% if bias_html %}
+                <div class="col-sm-2 tab" style="padding: 0;">
+					<div><button class="tablinks" onclick="openTab(event, 'associate-bias')" id="defaultOpenAssociatebias">Association Bias</button></div>
+                </div>
+
+                <div class="col-sm-10">
+
+                    <!----------------------------------------- Association Bias Html ----------------------------------------->
+					<div id="associate-bias" class="tabcontent">
+                        <div style="margin-left: 5%;">            
+                            <div class="generalguidance_div">
+                                <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href="https://docs.responsibly.ai/word-embedding-bias.html" target="_blank"> The Word Embedding Association Test (WEAT)</a> metric. Proposed by Caliskan et al. 2017, WEAT receives two sets T_1 and T_2 of target words, and two sets A_1 and A_2 of attribute words. Thus, it always expects a query of the form Q=({T_1,T_2},{A_1,A_2}. Its objective is to quantify the strength of association of both pair of sets through a permutation test.</p>
+                                    <p><b>Input Format:</b> Attribute set, Target set, Bias Category (i.e. gender, sentiments, custom etc.), and a Word Embedding File.</p>
+                                    <p><b>Output:</b> Association between target and attributes.</p>
+                                    <p><b>Scope:</b> Word embedding should contain target and attribute sets.</p>
+                                </div>
+							</div>
+                                
+							<p>Select Preprocessed Text Feature: <a href="#" data-toggle="tooltip"class="icon" data-placement="right" title="The text in this feature should be preprocessed. This feature will be used to create word embedding model for the test.">i</a></p>
+							<select class="form form-control" name="associate-dataset-features" id="associate-dataset-features"></select>
+							<br>
+							<!-- <p>Upload Preprocessed Data File (*.csv, *.xlsx format):</p>
+							<div class="">
+								<input class="form form-control" type="file" id="associatebias-dataset-file" class="file-upload"/>
+							</div> -->
+							<!-- <p>Select Bias Category:</p>
+							<select class="form form-control" name="associatebias-protected-features" id="associatebias-protected-features"></select> -->
+                            
+                            <div class="steps">
+                                
+                                <form id="myAssociationForm1">
+                                    Select Embedding Type:
+                                    <br>     
+                                    <input type="radio"
+                                        name="AssociationRad1" 
+                                        value="Word2Vec" checked> Word2Vec
+                                    <br>
+                                    <input type="radio"
+                                        name="AssociationRad1" 
+                                        value="FastText"> FastText
+                                    <br>
+                                    {% comment %} <input type="Submit"> {% endcomment %}
+                                </form>
+                                <br>
+                                <form id="myAssociationForm2">
+                                    Select Training Algorithm:
+                                    <br>     
+                                    <input type="radio"
+                                        name="AssociationRad2" 
+                                        value="CBOW" checked> CBOW
+                                    <br>
+                                    <input type="radio"
+                                        name="AssociationRad2" 
+                                        value="Skip-Gram"> Skip-Gram
+                                    <br>
+                                    {% comment %} <input type="Submit"> {% endcomment %}
+                                    <br>
+                                </form>
+                                <input type="submit" value="Submit" class="btn btn-primary" id="associatebias-submitbtn">
+                            </div>
+                        </div>
+                    </div>
+            
+                </div>
+
+                <div class="col-sm-12" style="padding: 0;">
+                    <div id="structureddata_output_div">
+                        <div style="text-align: center;">
+                            <h3>FAIRNESS - UNSTRUCTURED REPORT</h3>
+                        </div>
+                        <div id="show_output">
+
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+    
+        </div>
+
+        <div id="spinner_div" style="display: none;">
+            <div class="spinner-border" role="status" style="color: #A100FF;">
+                <span class="sr-only"></span>
+            </div>
+            <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;">Loading...</span></div>
+        </div>
+    </div>
+
+    <script>
+        my_data = `{{ bias_html|safe }}`
+        if(my_data==`1`){
+            function openTab(evt, cityName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(cityName).style.display = "block";
+                evt.currentTarget.className += " active";
+            }
+            document.getElementById("defaultOpenAssociatebias").click();
+			
+			let data = {'method': "START", 'url': "{% url 'associatebiasgetfeatures' %}"};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let features_list = data['dataset_columns']
+                    //$("#dataset-features").append($("<option />").val('select').text('Select Feature'));
+                    $.each(features_list, function(index, item) {
+                        $("#associate-dataset-features").append($("<option />").val(item).text(item));
+                    });
+                    $("#associatebias-step2").css('display', 'block');
+                    $("#associatebias-step4").css('display', 'block');  
+                    $("#associatebias-step5").css('display', 'block');
+                    $("#associatebias-step6").css('display', 'block');
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        }
+    
+    </script>
+		
+    <script>
+		
+		$(document).on('click', "#associatebias-submitbtn", function(){
+
+            var formData = new FormData();
+            let text_col = $('#associate-dataset-features').val();
+            // formData.append("file", $("input[id^='associatebias-dataset-file']")[0].files[0]);
+            let embedding_type = $('input[name=AssociationRad1]:checked','#myAssociationForm1').val();
+            let training_algo = $('input[name=AssociationRad2]:checked','#myAssociationForm2').val();
+
+            formData.append('embedding_type', embedding_type);
+            formData.append('training_algo', training_algo);
+            formData.append('text_col', text_col);
+
+            let data = {'method': "POST", 'url': "{% url 'associatebiassubmit' %}", "data": formData};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    $("#structureddata_output_div").css('display', 'block');
+                    if(document.getElementById('associatebias_report')!=null){
+                        $("#associatebias_report").remove();
+                    }
+
+                    let html = '<div class="bias_report_desc" id="associatebias_report"><h4>Association Bias Report</h4>';
+                        html += '<div><p><b>Gender Association:</b></p><br>';
+                        html += data['gender_output'];
+                        html += '<p><br><b>Ethnicity Association:</b></p><br>';
+                        html += data['ethnicity_output'];
+                        html += '<p><br><b>Religion Association:</b></p><br>';
+                        html += data['religion_output'];
+                        html += '</div>';
+                        $("#show_output").append(html);
+                } else if (data['status']==400) {
+                    alert("Error occurred while creating the embeddings. Please check the inputs and try again.");
+                } else{
+                    alert("Something went wrong. Please check inputs and try again.");
+                }
+            });
+        });
+        
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();   
+        });
+    </script>
+    <script>
+        function scroll_to_bias_report(btn, div){
+            /*$('html, body').animate({
+                scrollTop: $(div).offset().top
+            }, 2000);*/
+            let submit_btn = document.querySelector(btn);
+            let elem = document.querySelector(div);
+            submit_btn.addEventListener('click', function () {
+                elem.scrollIntoView(true);
+            });
+        }
+
+        function selectAndDeselectAllCheckBox(checkboxName){
+            var action
+            if($(checkboxName).prop('checked')){
+                action = true;
+            }else{
+                action = false;
+            }
+            var ele=document.getElementsByName($(checkboxName).prop('value'));  
+            for(var i=0; i<ele.length; i++){  
+                if(ele[i].type=='checkbox')  
+                    ele[i].checked=action;  
+            }
+        }
+    </script>
+    
+{% endblock %}

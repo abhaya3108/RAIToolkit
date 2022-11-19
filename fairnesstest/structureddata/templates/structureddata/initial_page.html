@@ -1,0 +1,203 @@
+{% extends 'structureddata/base.html' %}
+{% load static %}
+{% block head_block %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet"
+          href="{% static 'structureddata/css/initial_page.css' %}">
+{% endblock head_block %}
+{% block content %}
+    <div id="initial_page_html">
+        <div class="defination">
+            <div>
+                <h3 id="raitoolkti_heading">RAI Toolkit</h3>
+                <p>
+                    RAID (Responsible AI Development Toolkit) is a framework for bias audit, transparency, and robustness for machine learning & deep learning developers, analysts, and policymakers to audit AI models for identifying biases, explain their models, and check for any Vulnerability to make informed and unbiased decisions around developing and deploying them.
+                </p>
+            </div>
+            <p>This toolkit asses dataset/model against all RAI principles like Fairness, Transparency & Robustness etc.
+              The purpose of this toolkit is to: </p>
+            <ul>
+                <li>Identify all type of issues like biases (Sample Bias, Label Bias etc.)</li>
+                <li>Report all issues to user using collective reports via graph, charts, metrics.</li>
+                <li>Mitigate these issues to create reliable and trusted AI system.</li>
+            </ul>
+        </div>
+        <div class="dropdownStyle">
+            <h2>Please select the RAI Principle</h2>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle"
+                        type="button"
+                        id="dropdownMenuButton"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    Select Capability
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <a class="dropdown-item">
+                          Fairness &raquo;
+                        </a>
+                        <ul class="dropdown-menu dropdown-submenu">
+                          <li>
+                            <a class="dropdown-item" href="{% url 'structdata' %}">Structured Data</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="{% url 'unstructdata' %}">Unstructured Data</a>
+                          </li> 
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="dropdown-item">
+                          Robustness &raquo;
+                        </a>
+                        <ul class="dropdown-menu dropdown-submenu">
+						  <li>
+                            <a class="dropdown-item" href={{ROBUSTNESS_URL}}>General</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">Structured Data</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">Unstructured Data</a>
+                          </li> 
+                        </ul>
+                      </li>
+                    <li>
+                      <a class="dropdown-item">
+                        Transparency &raquo;
+                      </a>
+                      <ul class="dropdown-menu dropdown-submenu">
+                        <li>
+                          <a class="dropdown-item" href={{TRANSPARENCY_URL}}>Structured Data</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="#">Unstructured Data</a>
+						  <ul class="dropdown-menu dropdown-submenu" style="top: 0; left: 100%;">
+                            <li>
+                              <a class="dropdown-item" href={{TRANSPARENCY_UNSTRUCT_TXT_URL}}>Text</a>
+                            </li>
+                            <li>
+                              <a class="dropdown-item" href={{TRANSPARENCY_UNSTRUCT_IMG_URL}}>Image</a>
+                            </li> 
+                          </ul>
+                        </li> 
+                      </ul>
+                    </li>
+                  </ul>
+            </div>
+        </div>
+        <div class="">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="toolkitCard card">
+                        <div class="card-body">
+                            <div>
+                                <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/fairness.PNG' %}" alt="Card image fairness">
+                                <h5 class="card-title">Fairness</h5>
+                            </div>
+                            <p class="card-text">
+                                Fairness is area of machine learning that studies how to ensure that biases in the data and model inaccuracies do not lead to models that treat individuals unfavorably on the basis of characteristics such as e.g., race, gender, disabilities, and sexual or political orientation.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div>
+                                <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/fairness.PNG' %}" alt="Card image fairness">
+                                <h5 class="card-title">Fairness</h5>
+                            </div>
+                            <p class="card-text">
+                                Fairness is area of machine learning that studies how to ensure that biases in the data and model inaccuracies do not lead to models that treat individuals unfavorably on the basis of characteristics such as e.g., race, gender, disabilities, and sexual or political orientation.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                  <div class="toolkitCard card">
+                      <div class="card-body">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/transparency.PNG' %}" alt="Card image transparency">
+                            <h5 class="card-title">Transparency</h5>
+                            <p class="card-text">
+                                Transparency is about how much it is possible to understand about a system's inner workings “in theory”.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                      </div>
+                      <div class="flip-card-back">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/transparency.PNG' %}" alt="Card image transparency">
+                            <h5 class="card-title">Transparency</h5>
+                            <p class="card-text">
+                                Transparency is about how much it is possible to understand about a system's inner workings “in theory”.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                      </div>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="toolkitCard card">
+                        <div class="card-body">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/robustness.PNG' %}" alt="Card image robustness">
+                            <h5 class="card-title">Robustness</h5>
+                            <p class="card-text">
+                            The robustness is the property that characterizes how effective your algorithm is while being tested on the new independent (but similar) dataset.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/robustness.PNG' %}" alt="Card image robustness">
+                            <h5 class="card-title">Robustness</h5>
+                            <p class="card-text">The robustness is the property that characterizes how effective your algorithm is while being tested on the new independent (but similar) dataset.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="toolkitCard card">
+                        <div class="card-body">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/glossary.png' %}" alt="Card image robustness">
+                            <h5 class="card-title">Glossary (Common Terminology)</h5>
+                            <p class="card-text">A glossary also known as a vocabulary or clavis, is an alphabetical list of terms in a RAI toolkit domain of knowledge with the definitions for those terms.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <img class="card-img-top img-thumbnail" src="{% static 'structureddata/images/glossary.png' %}" alt="Card image robustness">
+                            <h5 class="card-title">Glossary (Common Terminology)</h5>
+                            <p class="card-text">A glossary also known as a vocabulary or clavis, is an alphabetical list of terms in a RAI toolkit domain of knowledge with the definitions for those terms.</p>
+                            <div class="exploreMoreDiv">
+                                <a href="{% static 'structureddata/files/RAI_toolkit_test_description.pdf' %}" target="_blank">
+                                    <span>Explore More</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'unstructureddata/base.html' %}
+{% load static %}
+
+{% block head_block %}
+<link rel="stylesheet" href="{% static 'unstructureddata/css/transparency.css' %}">
+{% endblock head_block %}
+
+{% block content %}
+{% static "unstructureddata/cam_images/" as roughimages %}
+<div id="transparencyContent">
+    <div style="text-align: center;">
+        <h3 class="TransparencyHeading">Transparency</h3>
+    </div>
+
+    <div class="row" style="padding-left: 1%;">
+        <div class="col-sm-2 tab" style="padding: 0;">
+            <div>
+                <button class="tablinks" onclick="openTab(event, 'transparency-cam')" id="defaultOpencam">CAM</button>
+            </div>
+        </div>
+        <div id="transparency-cam" class="tabcontent col-sm-10">
+            <p style="font-weight: bold;">General Guidance :</p>
+            <div class="infor">
+                <p><b>Description:</b><a
+                        href="https://arxiv.org/abs/1610.02391"
+                        target="_blank"> CAM </a> help to visualize what areas of an input image contribute to CNN’s
+                    final prediction. This becomes possible through producing a heatmap that highlights pixels in the
+                    input image that influence the assignment of this image to a certain class.</p>
+                <p><b>Input Format:</b> Model file (.h5), test image file which explainability has to be checked.</p>
+                <p><b>Output:</b> Heat map and overlapping heatmap on image.</p>
+                <p><b>Scope:</b> It supports only Keras model, one image can be tested at a time to provide
+                    explainability. This is for the model that describes the relationship between the inputs and outputs
+                    of a system (i.e. Black Box model). CAM supports Classification models only.</p>
+            </div>
+            <br>
+            {% if cam_form %}
+            <form action="" method="post" novalidate enctype="multipart/form-data" id="form_div">
+                {% csrf_token %}
+                {% if cam_form.non_field_errors %}
+                {% for error in cam_form.non_field_errors %}
+                <p class="alert alert-danger my-3">{{error}}</p>
+                {% endfor %}
+                {% endif %}
+                {% for fm in cam_form %}
+                <div class="form-group">
+                    {{fm.label_tag}} {{fm}}
+                    <small>{{fm.errors|striptags}}</small>
+                    <br>
+                </div>
+                {% endfor %}
+                <div style="text-align: center;">
+                    <input type="button" class="btn btn-primary" value="SUBMIT" id="cam_submit_btn">
+                </div>
+            </form>
+            <br>
+            <!--<div id="cam-output-div"></div>
+            <div class="row" id="cam_images">
+
+            </div>-->
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12" style="padding: 0;">
+        <div id="structureddata_output_div">
+            <div style="text-align: center;">
+                <h3>TRANSPARENCY - UNSTRUCTURED REPORT</h3>
+            </div>
+            <div id="show_output">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="spinner_div" style="display: none;">
+    <div class="spinner-border" role="status" style="color: #A100FF;">
+        <span class="sr-only"></span>
+    </div>
+    <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;">Loading...</span></div>
+</div>
+</div>
+
+<script>
+    function openTab(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    document.getElementById("defaultOpencam").click();
+
+    $(document).on('click', "#cam_submit_btn", function () {
+        var formData = new FormData();
+        formData.append("mfile", $("input[id^='cam_model_file']")[0].files[0]);
+        formData.append("file", $("input[id^='cam_img_file']")[0].files[0]);
+        //formData.append("testfile", $("input[id^='shap_test_file']")[0].files[0]);
+        let data = { 'method': "POST", 'url': "{% url 'camsubmit' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                let images = '';
+                if(document.getElementById('cam_report')!=null){
+                    $("#cam_report").remove();
+                }
+                $("#show_output").append('<div class="report_div" id="cam_report"></div>');
+                $("#cam_report").append('<h4>CAM Report</h4>');
+                $("#cam_report").append('<div id="cam_images"></div>');
+                //$('#cam-output-div').append("<h3>CAM:</h3>Class activation maps are a simple technique to get the discriminative image regions used by a CNN to identify a specific class in the image.");
+                let figNames = ['Original Image', 'Heat-map', 'Output Image']
+                $.each(data['filenames'], function (index, item) {
+                    images += '<div class="column"><img src= {{roughimages}}' + item + ' alt="' + figNames[index] + ' is not available" style="width:100%"><figcaption style="text-align: center;">' + figNames[index] + '</figcaption></div>';
+                });
+                $("#cam_images").append(images);
+            } else {
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    // Builds the HTML Table out of myList.
+    function buildHtmlTable(myList, selector) {
+        var columns = addAllColumnHeaders(myList, selector);
+        var row$ = $('<tr/>');
+        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+            var cellValue = myList[columns[colIndex]];
+            if (cellValue == null) cellValue = "";
+            row$.append($('<td/>').html(cellValue));
+        }
+        $(selector).append(row$);
+    }
+
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records.
+    function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        var rowHash = myList;
+        for (var key in rowHash) {
+            if ($.inArray(key, columnSet) == -1) {
+                columnSet.push(key);
+                headerTr$.append($('<th/>').html(key));
+            }
+        }
+        $(selector).append(headerTr$);
+
+        return columnSet;
+    }
+</script>
+
+{% endblock %}

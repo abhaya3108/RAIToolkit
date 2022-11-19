@@ -1,0 +1,361 @@
+{% extends 'structureddata/base.html' %}
+{% load static %}
+
+{% block head_block %}
+<link rel="stylesheet" href="{% static 'structureddata/css/transparency.css' %}">
+{% endblock head_block %}
+
+{% block content %}
+{% static "structureddata/images/" as roughimages %}
+<div id="transparencyContent">
+    <div style="text-align: center;">
+        <h3 class="TransparencyHeading">Transparency</h3>
+    </div>
+
+    <div class="row" style="padding-left: 1%;">
+        <div class="col-sm-2 tab" style="padding: 0;">
+            <div>
+                <button class="tablinks" onclick="openTab(event, 'transparency-shap')"
+                    id="defaultOpenshap">SHAP - Kernel</button>
+            </div>
+            <div>
+                <button class="tablinks" onclick="openTab(event, 'transparency-lime')"
+                    id="defaultOpenlime">LIME - Tabular</button>
+            </div>
+            <div>
+                <button class="tablinks" onclick="openTab(event, 'transparency-protodash')" id="defaultOpencam">AIX360-Protodash</button>
+            </div>
+        </div>
+        <div id="transparency-shap" class="tabcontent col-sm-10">
+            <!-- <div  id="main_div"> -->
+			<p style="font-weight: bold;">General Guidance :</p>
+			<div class="infor">
+				<p><b>Description:</b><a href=" https://shap-lrjball.readthedocs.io/en/latest/generated/shap.KernelExplainer.html" target="_blank"> Kernel SHAP </a> is a method that uses a special weighted linear regression to compute the importance of each feature. The computed importance values are Shapley values from game theory and also coefficients from a local linear regression.</p>
+				<p><b>Input Format:</b> Model file (.pkl), train data (.csv), test data (.csv), test input row number for local explainability.</p>
+				<p><b>Output:</b> Graph explaining the prediction result along with features importance .</p>
+				<p><b>Scope:</b> It is limited to explain one test input row at a time but supports both Classification and Regression models. This is for the model that describes the relationship between the inputs and outputs of a system (i.e. Black Box model).   </p>
+			</div>
+			<br>
+            {% if shap_form %}
+            <form action="" method="post" novalidate enctype="multipart/form-data" id="shap_form_div">
+                {% csrf_token %}
+                {% if shap_form.non_field_errors %}
+                {% for error in shap_form.non_field_errors %}
+                <p class="alert alert-danger my-3">{{error}}</p>
+                {% endfor %}
+                {% endif %}
+
+                {% for fm in shap_form %}
+                <div class="form-group">
+                    {{fm.label_tag}} {{fm}}
+                    <small>{{fm.errors|striptags}}</small>
+                    <br>
+                </div>
+                {% endfor %}
+                <div class="steps" id="step3" style="display: none;">
+                    <b><p>Select the target variable:</p></b>
+                    <select class="form form-control" name="shap-dataset-features" id="shap-dataset-features"></select>
+                </div>
+                <div style="text-align: center;">
+                    <input type="button" class="btn btn-primary" value="SUBMIT" id="shap_submit_btn">
+                </div>
+
+            </form>
+            <!-- <div>
+                <table id="shap_outputDiv" style="display: none;"></table>
+                <div id="shap_images"></div>
+            </div> -->
+            <!-- <div>
+            </div> -->
+            {% endif %}
+
+        </div>
+        <div id="transparency-lime" class="tabcontent col-sm-10">
+			<p style="font-weight: bold;">General Guidance :</p>
+			<div class="infor">
+				<p><b>Description:</b><a href=" https://lime-ml.readthedocs.io/en/latest/lime.html" target="_blank"> Lime Tabular </a> explains predictions on tabular (i.e. matrix) data. For numerical features, perturb them by sampling from a Normal (0,1) and doing the inverse operation of mean-centering and scaling, according to the means and std. deviation in the training data. For categorical features, perturb by sampling according to the training distribution, and making a binary feature that is 1 when the value is the same as the instance being explained.</p>
+				<p><b>Input Format:</b> Model file (.pkl), train data (.csv), test data (.csv), test input row number for local explainability, Target Variable, number of features.</p>
+				<p><b>Output:</b> Graphical representation of feature towards the class.</p>
+				<p><b>Scope:</b> It is limited to explain one test input row at a time but supports both Classification and Regression models. This is for the model that describes the relationship between the inputs and outputs of a system (i.e. Black Box model).</p>
+			</div>
+			<br>
+            {% if lime_form %}
+            <form action="" method="post" novalidate enctype="multipart/form-data" id="form_div">
+                {% csrf_token %}
+                {% if lime_form.non_field_errors %}
+                {% for error in lime_form.non_field_errors %}
+                <p class="alert alert-danger my-3">{{error}}</p>
+                {% endfor %}
+                {% endif %}
+                {% for fm in lime_form %}
+                <div class="form-group">
+                    {{fm.label_tag}} {{fm}}
+                    <small>{{fm.errors|striptags}}</small>
+                    <br>
+                </div>
+                {% endfor %}
+                <div class="steps" id="step2" style="display: none;">
+                    <b><p>Select the target variable:</p></b>
+                    <select class="form form-control" name="dataset-features" id="dataset-features"></select>
+                </div>
+                <div class="steps" id="aggregation-step6" style="display: block;">
+                    <b><p>Select Model mode</p></b>
+                    <input type="radio" name="radAnswer" value="classification" checked> Classification&nbsp;
+                    <input type="radio" name="radAnswer" value="regression"> Regression&nbsp;
+                </div>
+                <div style="text-align: center;">
+                    <input type="button" class="btn btn-primary" value="SUBMIT" id="lime_submit_btn">
+                </div>
+            </form>
+            <!-- <br>
+            <div style="text-align: center;" id="result_heading"></div>
+            <br>
+            <table id="lime_test_row" style="display: none;"></table>
+            <br>
+            <div class="container" id="limeresult">
+            </div> -->
+            {% endif %}
+        </div>
+        <div id="transparency-protodash" class="tabcontent col-sm-10">
+			<p style="font-weight: bold;">General Guidance :</p>
+			<div class="infor">
+				<p><b>Description:</b><a href="https://arxiv.org/abs/1707.01212" target="_blank"> Protodash </a> is a method for selecting prototypical examples that capture the underlying distribution of a dataset. It also weights each prototype to quantify how well it represents the data.One of the key benefits of ProtoDash is that it is designed to find diverse prototypes, examples that reflect the dataset in different ways, to give a more complete picture.</p>
+				<p><b>Input Format:</b> dataset (.csv), number of rows to be displayed in result. This is for the model that describes the relationship between the inputs and outputs of a system (i.e. Black Box model).</p>
+				<p><b>Output:</b> Weightage of prototypes.</p>
+				<p><b>Scope:</b> NA.</p>
+			</div>
+			<br>
+            {% if proto_form %}
+            <form action="" method="post" novalidate enctype="multipart/form-data" id="form_div">
+                {% csrf_token %}
+                {% if proto_form.non_field_errors %}
+                {% for error in proto_form.non_field_errors %}
+                <p class="alert alert-danger my-3">{{error}}</p>
+                {% endfor %}
+                {% endif %}
+                {% for fm in proto_form %}
+                <div class="form-group">
+                    {{fm.label_tag}} {{fm}}
+                    <small>{{fm.errors|striptags}}</small>
+                    <br>
+                </div>
+                {% endfor %}
+                <div style="text-align: center;">
+                    <input type="button" class="btn btn-primary" value="SUBMIT" id="proto_submit_btn">
+                </div>
+            </form>
+            <br>
+            <!--<table id="proto-output-div" style="display: none;"></table>
+            <div class="row" id="proto_images">
+
+            </div>-->
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12" style="padding: 0;">
+            <div id="structureddata_output_div">
+                <div style="text-align: center;">
+                    <h3>TRANSPARENCY - STRUCTURED REPORT</h3>
+                </div>
+                <div id="show_output">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="spinner_div" style="display: none;">
+        <div class="spinner-border" role="status" style="color: #A100FF;">
+            <span class="sr-only"></span>
+        </div>
+        <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;">Loading...</span></div>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    document.getElementById("defaultOpenshap").click();
+
+    $("#shap_train_file").change(function () {
+        var formData = new FormData();
+        formData.append("file", $("input[id^='shap_train_file']")[0].files[0]);
+        let data = { 'method': "POST", 'url': "{% url 'getfeatures' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                let features_list = data['dataset_columns']
+                //$("#dataset-features").append($("<option />").val('select').text('Select Feature'));
+                $.each(features_list, function (index, item) {
+                    $("#shap-dataset-features").append($("<option />").val(item).text(item));
+                });
+                $("#step3").css('display', 'block');
+            } else {
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    $("#lime_train_file").change(function () {
+        var formData = new FormData();
+        formData.append("file", $("input[id^='lime_train_file']")[0].files[0]);
+        let data = { 'method': "POST", 'url': "{% url 'getfeatures' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                let features_list = data['dataset_columns']
+                //$("#dataset-features").append($("<option />").val('select').text('Select Feature'));
+                $.each(features_list, function (index, item) {
+                    $("#dataset-features").append($("<option />").val(item).text(item));
+                });
+                $("#step2").css('display', 'block');
+            } else {
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    $(document).on('click', "#lime_submit_btn", function () {
+        $("#spinner_div").css('display', 'block');
+        var formData = new FormData();
+        formData.append("mfile", $("input[id^='lime_model_file']")[0].files[0]);
+        formData.append("file", $("input[id^='lime_train_file']")[0].files[0]);
+        formData.append("testfile", $("input[id^='lime_test_file']")[0].files[0]);
+        let model_type = $('input[name=radAnswer]:checked').val();
+        formData.append('model_type', model_type);
+        let test_input_row = $("#test_input_row_no").val();
+        formData.append('test_input_row', test_input_row);
+        let selected_features = $('#dataset-features').val();
+        formData.append('selected_feature', selected_features);
+        let num_feature = $("#num_feature").val();
+        formData.append('num_feature', num_feature);
+        let data = { 'method': "POST", 'url': "{% url 'limesubmit' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                if(document.getElementById('limetabular_report')!=null){
+                    $("#limetabular_report").remove();
+                }
+                $("#show_output").append('<div class="report_div" id="limetabular_report"></div>');
+                $("#limetabular_report").append('<div id="result_heading"></div>');
+                $('#result_heading').append('<h4>LIME-explained results:</h4>')
+                let json_test_row = JSON.parse(data['test_row'])
+                $("#limetabular_report").append('<div id="lime_test_row"></div>');
+                buildHtmlTable(json_test_row, '#lime_test_row');
+                //$("#lime_test_row").css('display', 'block');
+                $("#limetabular_report").append('<div id="limeresult"></div>');
+                $('#limeresult').html(data['exp']);
+                $("#spinner_div").css('display', 'none');
+                $("#limetabular_report")[0].scrollIntoView();
+            } else {
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    $(document).on('click', "#proto_submit_btn", function () {
+        $("#spinner_div").css('display', 'block');
+        var formData = new FormData();
+        $('#proto-output-div').html('');
+        formData.append("csv_file", $("input[id^='proto_train_file']")[0].files[0]);
+        let m = $("#m").val();
+        formData.append('m', m);
+        let data = { 'method': "POST", 'url': "{% url 'protosubmit' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                $("#show_output").append('<div class="report_div" id="proto_report"></div><table id="proto-output-table"></table>');
+                $("#proto_report").append('<h4>Protodash Report:</h4>');
+                $('#proto-output-table').html(data['result']);
+                $("#proto-output-table").css('display', 'block');
+                $("#spinner_div").css('display', 'none');
+            } else {
+                $("#spinner_div").css('display', 'none');
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    $(document).on('click', "#shap_submit_btn", function () {
+        $("#spinner_div").css('display', 'block');
+        var formData = new FormData();
+        formData.append("mfile", $("input[id^='shap_model_file']")[0].files[0]);
+        formData.append("file", $("input[id^='shap_train_file']")[0].files[0]);
+        formData.append("testfile", $("input[id^='shap_test_file']")[0].files[0]);
+        var width = window.innerWidth - 20;
+        let test_input_row = $("#shap_test_input_row_no").val();
+        formData.append('test_input_row', test_input_row);
+        formData.append('width', width);
+        let selected_features = $('#shap-dataset-features').val();
+        formData.append('selected_feature', selected_features);
+        let data = { 'method': "POST", 'url': "{% url 'shapsubmit' %}", "data": formData };
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+                //$("#shap_outputDiv").css('display', 'block');
+
+                if(document.getElementById('shap_report')!=null){
+                    $("#shap_report").remove();
+                }
+                $("#show_output").append('<div class="report_div" id="shap_report"></div>');
+                $("#shap_report").append('<h4>Shap Report</h4>');
+                $("#shap_report").append('<div id="shap_report_desc"></div>');
+                let json_test_row = JSON.parse(data['result'])
+                buildHtmlTable(json_test_row, '#shap_report_desc');
+                $("#shap_report_desc").append('<div id="shap_images"></div>');
+                $("#shap_images").append(data['plot_image']);
+                //$("#shap_images").append('<img src="{% static "structureddata/images/shap_plot_img.png" %}" alt="" style="width: 100%;">');
+                $("#spinner_div").css('display', 'none');
+                $("#shap_report")[0].scrollIntoView();
+            } else {
+                $("#spinner_div").css('display', 'none');
+                alert("Something went wrong");
+            }
+        });
+    });
+
+    // Builds the HTML Table out of myList.
+    function buildHtmlTable(myList, selector) {
+        var columns = addAllColumnHeaders(myList, selector);
+        var row$ = $('<tr/>');
+        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+            var cellValue = myList[columns[colIndex]];
+            if (cellValue == null) cellValue = "";
+            row$.append($('<td/>').html(cellValue));
+        }
+        $(selector).append(row$);
+    }
+
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records.
+    function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        var rowHash = myList;
+        for (var key in rowHash) {
+            if ($.inArray(key, columnSet) == -1) {
+                columnSet.push(key);
+                headerTr$.append($('<th/>').html(key));
+            }
+        }
+        $(selector).append(headerTr$);
+
+        return columnSet;
+    }
+</script>
+
+{% endblock %}

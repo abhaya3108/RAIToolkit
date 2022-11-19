@@ -1,0 +1,187 @@
+#initial_page_html{
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    padding: 2rem;
+}
+
+.defination{
+    background-color: white;
+    font-weight: 600;
+}
+
+.defination p{
+    margin: 1rem 2rem;
+    border-bottom: 1px solid #000;
+    font-size: 14px;
+}
+
+.defination ul{
+    margin: 1rem;
+    padding-bottom: 2rem;
+    font-size: 14px;
+}
+
+#raitoolkti_heading{
+    color: #763E9B;
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 700;
+    text-shadow: 1px 1px;
+    border-bottom: 2px solid #763E9B;
+    margin-bottom: 2rem;
+    letter-spacing: 3px;
+    word-spacing: 5px;
+}
+
+.dropdownStyle{
+    margin: 3rem 0rem;
+    padding: 2rem 1rem 4rem 1rem;
+    background-color: #A100FF;
+    color: white;
+}
+
+.dropdown-toggle{
+    background-color: white;
+    color: #000;
+}
+.dropdown-item {
+    color: #000;
+    cursor: pointer;
+}
+
+.col-sm-3{
+    background-color: transparent;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.toolkitCard{
+    background-color: #FFFFFF;
+    border: 1px solid white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 10px;
+
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+} 
+.col-sm-3:hover .toolkitCard {
+    transform: rotateY(180deg);
+}
+
+
+.card-body{
+    padding: 10px 20px;
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    color: #000;
+
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+.card-body p{
+    margin-bottom: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.card-title {
+    font-size: 18px;
+    padding-top: 1%;
+    height: 50px;
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    font-weight: 700;
+    margin-bottom: 3rem;
+}
+
+.card-body .exploreMoreDiv{
+    text-align: center;
+    /* transition: all 1s; */
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+}
+/* #exploreMoreDiv:hover{
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 10px;
+    background-color: #d2d2d2d2;
+} */
+.card-body .exploreMoreDiv a{color: #A100FF;text-decoration: none;font-weight: 600;}
+/* .dropdownStyle{
+    padding-top: 2%;
+    padding-left: 4%;
+} */
+.card-text{
+    height: 10rem;
+}
+.card-img-top{
+    height: 70px;
+    width: 80px;
+    margin-top: 5px;
+    float: left;
+    padding-right: 2px;
+    color: #a000fe;
+    margin-right: 2rem;
+}
+
+.flip-card-back {
+    background-color: #A100FF;
+    color: white;
+    transform: rotateY(180deg);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    padding: 10px 20px;
+}
+
+.flip-card-back p{
+    /* margin-bottom: 15px; */
+    font-size: 14px;
+}
+
+.flip-card-back .exploreMoreDiv{text-align: center;}
+
+.flip-card-back .exploreMoreDiv a{
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    background-color: #ffffff;
+    color: #000;
+    font-weight: 600;
+}
+
+.flip-card-back .exploreMoreDiv a:hover{
+    background-color: #d2d2d2;
+    color: #000;
+    margin-right: 10px;
+}
+.dropdown-menu li {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-menu .dropdown-submenu {
+display: none;
+position: absolute;
+/* left: 100%;
+top: -7px; */
+}
+.dropdown-menu .dropdown-submenu-left {
+right: 100%;
+left: auto;
+}
+.dropdown-menu > li:hover > .dropdown-submenu {
+display: block;
+}
+
+.dropdown-submenu li{
+    display: block;
+}
+
+a.disabledlink {
+    pointer-events: none;
+    cursor: default;
+}

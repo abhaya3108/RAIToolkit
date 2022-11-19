@@ -1,0 +1,1293 @@
+{% extends 'structureddata/base.html' %}
+{% load static %}
+
+{% block head_block %}
+    <link rel="stylesheet" href="{% static 'structureddata/css/structured_data.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock head_block %}
+
+{% block content %}
+    {% static "structureddata/images" as imgurl %}
+    {% static "structureddata/label_bias_images" as labelbiasurl %}
+    {% static "structureddata/exclusion_bias_images" as exclusionbiasurl %}
+    {% static "structureddata/images/sample_bias_images" as samplebias_imgurl %}
+    <div id="labelbiasContent">
+
+        <div style="text-align: center;">
+            <h3 class="labelbiasHeading">Bias Analysis</h3>
+        </div>
+        <!-- <div style="text-align: center;">
+            <h3 class="labelbiasHeading" style="text-shadow: 1px 1px; background-color: #5a5a5a; color: white;">FAIRNESS - STRUCTURED DATA</h3>
+        </div> -->
+
+        <div class="row">
+
+            <div id="structureddata_form_div">
+                {% if structureddata_form %}
+                    <form action="" method="POST" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- {{form.as_p}} -->
+                        
+                        {% if structureddata_form.non_field_errors %}
+                            {% for error in structureddata_form.non_field_errors %}
+                                <p class="alert alert-danger my-3">{{error}}</p>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <div class="row">
+                            {% for fm in structureddata_form %}
+                                <div class="form-group col-sm-10">
+                                    {{fm.label_tag}} {{fm}} 
+                                    <small>{{fm.errors|striptags}}</small>
+                                </div>
+                            {% endfor %}
+                            <div class="col-sm-2" style="text-align: center; padding: 1.5rem;">
+                                <input type="submit" class="btn btn-primary" value="UPLOAD" id="upload_dataset_file_btn">
+                            </div>
+                        </div>
+                    </form>
+
+                {% endif %}
+            </div>
+
+            {% if bias_html %}
+                <div class="col-sm-2 tab" style="padding: 0;">
+                    <div><button class="tablinks" onclick="openTab(event, 'sample-bias')" id="defaultOpenSamplebias">Sample Bias</button></div>
+                    <div><button class="tablinks" onclick="openTab(event, 'lable-bias')" id="defaultOpenLabelbias">Pre-Prediction Label Bias</button></div>
+                    <div><button class="tablinks" onclick="openTab(event, 'exclusion-bias')" id="defaultOpenExclusionbias">Exclusion Bias</button></div>
+                    <div><button class="tablinks" onclick="openTab(event, 'post-predictions')" id="defaultOpenPostPrediction">Post-Predictions Label Bias</button></div>
+                    <div><button class="tablinks" onclick="openTab(event, 'aggregation-bias')" id="defaultAggregationBias">Aggregation Bias</button></div>
+                </div>
+
+                <div class="col-sm-10">
+
+                    <!----------------------------------------- Sample Bias Html ----------------------------------------->
+                    <div id="sample-bias" class="tabcontent">
+            
+                        <div style="margin-left: 5%;">
+                            <!-- <div class="steps">
+                                <p>Step 1: Upload dataset in CSV format</p>
+                                <div class="">
+                                    <input class="form form-control" type="file" id="samplebias-dataset-file" class="file-upload" accept=".csv"/>
+                                </div>
+                            </div> -->
+                            
+                            <div class="generalguidance_div">
+                                <p style="font-weight: bold;">General Guidance:</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href=" https://en.wikipedia.org/wiki/Sampling_bias" target="_blank"> Sampling bias</a> occurs when some members of a population are systematically more likely to be selected in a sample than others. Sampling bias is a threat to external validity – it limits the generalizability of your findings to a broader group of people.</p><br>
+                                    <p><b>Input Format:</b> Tabular data should be used for the sample bias test which contains continuous and categorical features. The desired features should be selected to perform this test.</p><br>
+                                    <p><b>Output:</b>Sample bias can be reduced or eliminated by examining the domain of each feature and making sure we have balanced evenly distributed data covering all of it. It shows the confidence in favor of sample bias for selected columns.</p><br>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. This test can identify bias only in categorical variable.</p><br>
+                                    <p><b>Example:</b> A group of people wherein gender data distribution is not even. The data has a 70% of male and 30% of female distribution which led to biased in the sample.</p>
+                                </div>
+                            </div>
+                            <div class="steps" id="step2" style="display: none;">
+                                <!-- <p>Step 2: Select protected/sensitive feature you want to debias</p> -->
+                                <!-- <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href=" https://en.wikipedia.org/wiki/Sampling_bias" target="_blank"> Sampling bias</a> occurs when some members of a population are systematically more likely to be selected in a sample than others. Sampling bias is a threat to external validity – it limits the generalizability of your findings to a broader group of people.</p>
+                                    <p><b>Input Format:</b> Tabular data should be used for the sample bias test which contains continuous and categorical features. The desired features should be selected to perform this test.</p>
+                                    <p><b>Output:</b>Sample bias can be reduced or eliminated by examining the domain of each feature and making sure we have balanced evenly distributed data covering all of it. It shows the confidence in favor of sample bias for selected columns.</p>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. This test can identify bias only in categorical variable.</p>
+                                    <p><b>Example:</b> A group of people wherein gender data distribution is not even. The data has a 70% of male and 30% of female distribution which led to biased in the sample.</p>
+                                </div>
+                                <br> -->
+                                
+                                <p>Please select the protected/sensitive features you want to test for biases:
+                                    <a href="#" data-toggle="tooltip"class="icon" data-placement="right" 
+                                    title="Personal characteristic that is protected by law, like age, sex, gender identity, race, or disability. 
+                                    These are known as 'protected characteristics' or 'protected attributes' or 'protected features'. 
+                                    Protected attributes are often presented as categorical features that need to be encoded before feeding them into a machine learning 
+                                    algorithm.">i</a>
+                                </p>
+
+                                <!-- <select class="form form-control" name="dataset-features" id="dataset-features" multiple></select> -->
+                                <div id="samplebias-selectfeatures">
+
+                                </div>
+
+                                <div style="text-align: center;">
+                                    <input type="button" value="Submit" class="btn btn-primary" id="samplebias-submitbtn">
+                                </div>                   
+                            </div>
+            
+                            <!-- <div id="samplebias_outputDiv" style="display: none;">
+                            </div> -->
+            
+                        </div>
+                    </div>
+                    
+                    <!----------------------------------------- Pre-Prediction Lable Bias Html ----------------------------------------->
+                    <div id="lable-bias" class="tabcontent">
+                        <div style="margin-left: 5%;">
+                            <!-- <div class="steps">
+                                <p>Step 1: Upload dataset in CSV format</p>
+                                <div class="">
+                                    <input class="form form-control" type="file" id="labelbias-dataset-file" class="file-upload" accept=".csv"/>
+                                </div>
+                            </div> -->
+            
+                            <div class="generalguidance_div">
+                                <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b> The pre-prediction <a href="https://awni.github.io/label-bias/" target="_blank">label bias</a> occurs when some members of a population are systematically more likely to be selected in a sample than others with respect to target label. This test is used to identify bias (if any) prior to training the algorithm.</p>
+                                    <p><b>Input Format:</b> Categorical and continuous features should be selected along with target feature to perform the hypothesis test to check the p-value.</p>
+                                    <p><b>Output:</b> It shows the p-value for the test which reflects the degree of data compatibility with the null hypothesis.</p>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. For Target variable selection, only one target can be selected.</p>
+                                    <p><b>Example:</b> A group of people having a class income level > 50K wherein out of the total, 80% of Male and 20% of females have a class level more than > 50K despite the fact that they have an even distribution of 50%-50% in the dataset. This led to label bias in the data.</p>
+                                </div>
+                            </div>
+                            <div class="steps" id="labelbias-step2" style="display: none;">
+                                <!-- <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b> The pre-processing <a href="https://awni.github.io/label-bias/" target="_blank">label bias</a> is to reduce bias by manipulating the training data prior to training the algorithm.</p>
+                                    <p><b>Input Format:</b> Categorical and continuous features should be selected along with target feature to perform the hypothesis test to check the p-value.</p>
+                                    <p><b>Output:</b> It shows the p-value for the test which reflects the degree of data compatibility with the null hypothesis.</p>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. For Target variable selection, only one target can be selected.</p>
+                                    <p><b>Example:</b> A group of people having a class income level > 50K wherein out of the total, 80% of Male and 20% of females have a class level more than > 50K despite the fact that they have an even distribution of 50%-50% in the dataset. This led to label bias in the data.</p>
+                                </div>
+                                <br> -->
+                                <p>Step 1: Select Protected Categorical Features</p>
+
+                                <!-- <select class="form form-control" name="labelbias-categorical-features" id="labelbias-categorical-features" multiple></select> -->
+                                <div id="prelablebias-selectcatgfeatures">
+
+                                </div>
+                            </div>
+                            <div class="steps" id="step3" style="display: none;">
+                                <p>Step 2: Select Protected Continuous Features</p>
+                                <!-- <select class="form form-control" name="labelbias-continuous-features" id="labelbias-continuous-features" multiple></select> -->
+                                <div id="prelablebias-selectcontfeatures">
+
+                                </div>
+                            </div>
+                            <div class="steps" id="step4" style="display: none;">
+                                <p>Step 3: Select target</p>
+                                <!-- <select class="form form-control" name="labelbias-target-features" id="labelbias-target-features"></select> -->
+                                <div id="prelablebias-selecttarget">
+
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <input type="submit" value="Submit" class="btn btn-primary" id="labelbias-submitbtn">
+                            </div>                
+                            <!-- <div>
+                                <div id="labelbias_outputDiv" style="display: none;"></div>
+                                <div id="labelbias_images"></div>
+                            </div>  -->
+                        </div>
+                    </div>
+                    
+                    <!----------------------------------------- Exclusion Bias Html ----------------------------------------->
+                    <div id="exclusion-bias" class="tabcontent">
+                        <div style="margin-left: 5%;">
+                            <!-- <div class="steps">
+                                <p>Step 1: Upload dataset in CSV format</p>
+                                <div class="">
+                                    <input class="form form-control" type="file" id="exclusionbias-dataset-file" class="file-upload" accept=".csv"/>
+                                </div>
+                            </div> -->
+                            
+                            <div class="generalguidance_div">
+                                <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href="https://jech.bmj.com/content/58/8/635" target="_blank"> Exclusion bias</a> results from the exclusion of particular groups from the sample. We delete some feature(s) thinking that they are irrelevant to our labels/outputs based on pre-existing beliefs.</p>
+                                    <p>During data pre-processing, features that are considered irrelevant end up being removed. This can consist of removing null values, outliers, or other extraneous data points. The removal process may lead to exclusion bias and the removed features may end up being underrepresented when the data is applied to a real-world problem and resulting in the loss of the true accuracy of the data collected.</p>
+                                    <p><b>Input Format:</b> Tabular data should have the combination of categorical and numerical features.</p>
+                                    <p><b>Output:</b> Perform the correlation test basis on numerical and categorical features such as Kendall, Eta, Pearson, etc. to see how features are correlated with the target variable.</p>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. For Target variable selection, only one target can be selected.</p>
+                                    <p><b>Example:</b> For example, imagine you have a dataset of customer sales in America and Canada. 98% of the customers are from America, so you choose to delete the location data thinking it is irrelevant. However, this means the model will not pick up on the fact that Canadian customers spend two times more.</p>
+                                </div>
+                            </div>
+                            <div class="steps" id="exclusionbias-step2" style="display: none;">
+                                <!-- <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href="https://www.formpl.us/blog/selection-bias" target="_blank"> Exclusion bias</a> results from the exclusion of particular groups from the sample. We delete some feature(s) thinking that they are irrelevant to our labels/outputs based on pre-existing beliefs.</p>
+                                    <p>During data pre-processing, features that are considered irrelevant end up being removed. This can consist of removing null values, outliers, or other extraneous data points. The removal process may lead to exclusion bias and the removed features may end up being underrepresented when the data is applied to a real-world problem and resulting in the loss of the true accuracy of the data collected.</p>
+                                    <p><b>Input Format:</b> Tabular data should have the combination of categorical and numerical features.</p>
+                                    <p><b>Output:</b> Perform the correlation test basis on numerical and categorical features such as Kendall, Eta, Pearson, etc. to see how features are correlated with the target variable.</p>
+                                    <p><b>Scope:</b> For uploading dataset file, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features. For Target variable selection, only one target can be selected.</p>
+                                    <p><b>Example:</b> For example, imagine you have a dataset of customer sales in America and Canada. 98% of the customers are from America, so you choose to delete the location data thinking it is irrelevant. However, this means the model will not pick up on the fact that Canadian customers spend two times more.</p>
+                                </div>
+                                <br> -->
+                                <p>Step 1: Select Protected Features</p>
+                                <!-- <select class="form form-control" name="exclusionbias-protected-features" id="exclusionbias-protected-features" multiple></select> -->
+                                <div id="exclusionbias-selectfeatures">
+
+                                </div>
+                            </div>
+                            <div class="steps" id="exclusionbias-step3" style="display: none;">
+                                <p>Step 2: Select target</p>
+                                <!-- <select class="form form-control" name="exclusionbias-target-features" id="exclusionbias-target-features" multiple></select> -->
+                                <div id="exclusionbias-selecttarget">
+
+                                </div>
+                                {% comment %} <input type="submit" value="Submit" class="btn btn-primary" id="exclusionbias-submitbtn">                     {% endcomment %}
+                            </div>            
+                            <div class="steps" id="exclusionbias-step4" style="display: none;">
+                                <!-- <form id="myForm">
+                                    Step 4: Select coefficient for categorical-categorical correlation
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer" 
+                                        value="Kendall" checked>Kendall
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer" 
+                                        value="cramer">Cramer
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer" 
+                                        value="theilsu">Theilsu
+                                    <br>
+                                    {% comment %} <input type="Submit"> {% endcomment %}
+                                </form> -->
+                                <p>Step 3: Select coefficient for categorical-categorical correlation</p>
+                                <input type="radio" name="radAnswer" value="Kendall" checked>Kendall&nbsp;
+                                <input type="radio" name="radAnswer" value="cramer">Cramer&nbsp;
+                                <input type="radio" name="radAnswer" value="theilsu">Theilsu
+                            </div>
+                            <div class="steps" id="exclusionbias-step5" style="display: none;">
+                                <!-- <form id="myForm1">
+                                    Step 5: Select coefficient for categorical-continuous correlation
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer1" 
+                                        value="eta" checked>Eta
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer1" 
+                                        value="pointbiserial">Pointbiserial
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer1" 
+                                        value="kendall">Kendall
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer1" 
+                                        value="theilsu">Theilsu
+                                    <br>
+                                    {% comment %} <input type="Submit"> {% endcomment %}
+                                </form> -->
+                                <p>Step 4: Select coefficient for categorical-continuous correlation</p>
+                                <input type="radio" name="radAnswer1" value="eta" checked>Eta&nbsp;
+                                <input type="radio" name="radAnswer1" value="pointbiserial">Pointbiserial&nbsp;
+                                <input type="radio" name="radAnswer1" value="kendall">Kendall&nbsp;
+                                <input type="radio" name="radAnswer1" value="theilsu">Theilsu
+                            </div>
+                            <div class="steps" id="exclusionbias-step6" style="display: none;">
+                                <!-- <form id="myForm2">
+                                    Step 6: Select coefficient for continuous-continuous correlation
+                                    <br>     
+                                    <input type="radio"
+                                        name="radAnswer2" 
+                                        value="pearson">Pearson
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer2" 
+                                        value="kendall" checked>Kendall
+                                    <br>
+                                    <input type="radio"
+                                        name="radAnswer2" 
+                                        value="theilsu">Theilsu
+                                    <br>
+                                    {% comment %} <input type="Submit"> {% endcomment %}
+                                </form> -->
+                                <p>Step 5: Select coefficient for continuous-continuous correlation</p>
+                                <input type="radio" name="radAnswer2" value="pearson">Pearson&nbsp;
+                                <input type="radio" name="radAnswer2" value="kendall" checked>Kendall&nbsp;
+                                <input type="radio" name="radAnswer2" value="theilsu">Theilsu                                         
+                            </div>
+                            <!-- <input type="submit" value="Submit" class="btn btn-primary" id="">       -->
+                            <div style="text-align: center;">
+                                <input type="button" value="Submit" class="btn btn-primary" id="exclusionbias-submitbtn">
+                            </div>
+                        </div>
+                    </div>
+                    <!---------------------------------------------------Aggregation-Bias----------------------------------------------->
+            <div id="aggregation-bias" class="tabcontent">
+
+                <div style="margin-left: 5%;">
+                    <div class="generalguidance_div">
+						<p style="font-weight: bold;">General Guidance :</p>
+						<div class="infor">
+							<p><b>Description:</b><a href="https://journals.sagepub.com/doi/10.1177/014920638701300409" target="_blank"> Aggregation bias</a> occurs when it is wrongly assumed that the trends seen in aggregated data also apply to individual data points. Aggregation bias can cause the results of a study to draw the wrong conclusions and can be misleading. This type of bias is particularly harmful when it relates to correlations between variables. This test detects <a href="https://github.com/ehart-altair/SimpsonsParadox" target="_blank">Simpsons Pairs</a> in a dataset</p>
+							<p><b>Input Format:</b> Following Input parameters are required: Dependent variable (e.g., Target Variable), Ignore Columns (column to ignore while detecting bias), Bin Columns (Dummify/Binning of categorical variable), Standardize (default - True) using Z-score , Bin method (default - Quantile) and Weighting (default - True), Maximum p-value (default - 0.05) and minimum correlation (default - 0.01)& model cofficient (default - 0.00001).</p>
+							<p><b>Output:</b> Tables/Graph which displays Simpsons Pairs.</p>
+							<p><b>Scope:</b> Using aggregate data is the inherent difficulty of making valid multilevel inferences based on a single level of analysis.</p>
+						</div>
+					</div>
+                    <div class="steps" id="aggregation-step1" style="display: none;">
+                        <p>Step1: Please select the dependent variable / Target to run analysis
+                            <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="Name of the target or dependent variable.">i</a>
+                        </p>
+                        <div id="aggregationbias-selectfeatures">
+                        </div>
+                    </div>
+                    <div class="steps" id="aggregation-step2" style="display: none;">
+                        <p>Step 2: Select Ignore Columns
+                            <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="List of columns that user wants to exclude from the analysis. To pass a list from the command line, pass multiple strings and add a space between each string.">i</a>
+                        </p>
+                        <div id="aggregationbias-ignore-columns">
+
+                        </div>
+                    </div>
+                    <div class="steps" id="aggregation-step3" style="display: none;">
+                        <p>Step 3: Select Bin Columns
+                            <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="List of columns that user wants to bin prior to the analysis. If no list is passed, the default is to bin any columns with more than 10 categories.">i</a>
+                        </p>
+                        <div id="aggregationbias-bin-columns">
+                        </div>
+                    </div>
+                    <div class="steps" id="aggregation-step4" style="display: none;">
+                        <p>Step 4: Select Standardize
+                            <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="This will standardize any variables with more than 10 unique values (i.e. non-discrete variables) using z-score standardization. Exclude this argument if standardizing variables with more than 10 unique values is not desired.">i</a>
+                        </p>
+                        <input type="radio" name="radAnswer3" value="True" checked> True&nbsp;
+                        <input type="radio" name="radAnswer3" value="False"> False&nbsp;
+                    </div>
+                    <div class="steps" id="aggregation-step5" style="display: none;">
+                        <p>Step 5: Select Bin Method
+                        </p>
+                        <input type="radio" name="radAnswer4" value="quantile" checked> quantile&nbsp;
+                        <input type="radio" name="radAnswer4" value="kmeans"> kmeans&nbsp;
+                        <input type="radio" name="radAnswer4" value="uniform"> uniform&nbsp;
+                    </div>
+                    <div class="steps" id="aggregation-step6" style="display: none;">
+                        <p>Step 6: Select Weighting
+                            <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="This will exclude weak cases of Simpson’s Paradox, i.e. cases where the sign of the weighted average of the coefficients is the same as the sign of the simple model coefficient value.">i</a>
+                        </p>
+                        <input type="radio" name="radAnswer5" value="True" checked> True&nbsp;
+                        <input type="radio" name="radAnswer5" value="False"> False&nbsp;
+                    </div>
+                    <label for="max-p-value">Step 7: max p-value
+                        <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="Pairs with independent variables that have large p-values in the simple regression model are filtered out.">i</a>
+                    </label><br>
+                    <input type="number" id="max-p-value" name="max-p-value" value="0.05"><br><br>
+
+                    <label for="min-coeff">Step 8: min coeff
+                        <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="Pairs with independent variables that have small coefficients in the simple model are excluded. This is done by filtering out coefficients close to zero using this specified value. If the dependent variable is binary, this can also be done by evaluating the confidence intervals of the odds.">i</a>
+                    </label><br>
+                    <input type="number" id="min-coeff" name="min-coeff" value="0.00001"><br><br>
+
+                    <label for="min_corr">Step 9: min corr
+                        <a href="#" data-toggle="tooltip" class="icon" data-placement="right" title="For numeric variables, any pairs with correlations between the independent variable and conditioning variable, or between the conditioning variable and dependent variable, that are below this minimum are filtered out.">i</a>
+                    </label><br>
+                    <input type="number" id="min-corr" name="min-corr" value="0.01"><br><br>
+                    <div style="text-align: center;">
+                        <input type="button" value="Submit" class="btn btn-primary" id="aggregationbias-submitbtn">
+                    </div>
+                </div>
+            </div>
+                    <!----------------------------------------- Post-Prediction Lable Bias Html ----------------------------------------->
+                    <div id="post-predictions" class="tabcontent">
+                        <div style="margin-left: 5%;" id="post-predictions-content">
+                            <div>
+                                <button id="postlablebias-backBtn">Back</button>
+                            </div>
+                            <div class="generalguidance_div">
+                                <p style="font-weight: bold;">General Guidance :</p>
+                                <div class="infor">
+                                    <p><b>Description:</b><a href="https://awni.github.io/label-bias/" target="_blank"> Post prediction Label bias</a> occurs when the model performance differs between categories of a protected categorical variable. This test takes into consideration the protected features data, target variable and the predictions from the model and it can help in detecting the biased model predictions among the protected categories in the data.</p>
+                                    <br><p><b>Input Format:</b> Apart from the input dataset file, you need to provide the probability/label predictions file in CSV format. Then you need to select protected/sensitive categorical features from the list along with a binary target variable and its primary category. The test also provides flexibility to select relevant accuracy metrics, bias detection method and the threshold value.</p>
+                                    <br><p><b>Output:</b> This test provides various accuracy metric values like Precision, Recall, TPR, FPR, etc. and confusion matrix for each category of the selected protected features. These metrics can be used to gauge the difference in model performance among the categories of a protected feature.</p>
+                                    <br><p><b>Scope:</b> The dataset and probability prediction file must be in CSV format. <u>This test is valid only for binary classification problems and detects bias in categorical sensitive features only. It also works with Multi-class classification problems using 1 vs Rest technique.</u></p>
+                                    <br><p><b>Note:</b>
+                                        <ul>
+                                        <li>The predicted probabilities/labels must be corresponding to the uploaded test data set file.</li>
+                                        <li>For Euclidean Distance: The threshold value ranges from 1 to 200 but will be normalized to 0-2 range in the calculation.</li>
+                                        <li>For KS Test P-Value: The threshold value ranges from 1 to 100 but will be normalized to 0-1 range in the calculation. For example: To select a significance value of 0.05, please select 5 as the threshold value.</li>
+                                        </ul></p>
+                                    <p><b>Example:</b> The trained model perform with 80% precision for male category and with 60% precision for female category. This imbalance in model performance can introduce gender bias in the model predictions.</p>
+                                </div>
+                            </div>
+                            <!-- <p style="font-weight: bold;">General Guidance :</p>
+                            <div class="infor">
+                                <p><b>Description:</b><a href="https://awni.github.io/label-bias/" target="_blank"> Post prediction Label bias</a> analysis can help identify biases that might have emanated from biases in the data, or from biases introduced by the classification and prediction algorithms. These analyses take into consideration the data, including the labels, and the predictions of a model. It is defined as the rate of how many unseen points a model labeled accurately over the total number of observations.</p>
+                                <p><b>Input Format:</b> The protected and sensitive feature to be selected along with the target feature. The accuracy metric needs to be selected to generate the report accordingly.</p>
+                                <p><b>Output:</b> This test is performed to check the accuracy metrics such as Precision and Recall, TPR, and FPR.  This assesses performance by analyzing predicted labels or by comparing the predictions with the observed target values in the data with respect to groups with different attributes.</p>
+                                <p><b>Scope:</b> For uploading dataset file and predicted probabilities, only Tabular data in CSV format is accepted by system for the sample bias test which contains continuous and categorical features.</p>
+                                <p><b>Example:</b> A group of people wherein out of the total, 20% of female income class predicted correctly whereas 30% of male income class predicted incorrectly. This led to post prediction label bias in the sample.</p>
+                            </div>
+                            <br> -->
+                            <div id="post-predictions-form_div">
+                                {% if lableBiasPostPrediction_form %}
+                                    <form action="" method="POST" novalidate enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <!-- {{form.as_p}} -->
+                                        
+                                        {% if lableBiasPostPrediction_form.non_field_errors %}
+                                            {% for error in lableBiasPostPrediction_form.non_field_errors %}
+                                                <p class="alert alert-danger my-3">{{error}}</p>
+                                            {% endfor %}
+                                        {% endif %}
+                                        
+                                        {% for fm in lableBiasPostPrediction_form %}
+                                            <div class="form-group">
+                                                {{fm.label_tag}} <a href="#" data-toggle="tooltip"class="icon" data-placement="right" 
+                                                title="The prediction file must be in CSV format and the predicted probabilities/labels must be corresponding to the uploaded test data set file.">i</a>
+                                                {{fm}} 
+                                                <small>{{fm.errors|striptags}}</small>
+                                                <br><br>
+                                            </div>
+                                        {% endfor %}
+                                        <div style="text-align: center;">
+                                            <input type="button" class="btn btn-primary" value="Upload" id="postlablebias-submitbtn">
+                                        </div>
+                                        
+                                    </form>
+                
+                                {% endif %}
+                
+                            </div>
+
+                            <div id="output_div">
+                                <!-- <div id="spinner_div" style="display: none; text-align: center;margin: 7rem 17rem;">
+                                    <div class="spinner-border" role="status" style="color: #A100FF;">
+                                        <span class="sr-only"></span>
+                                    </div>
+                                    <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;text-shadow: 1px 1px;">Loading...</span></div>
+                                </div> -->
+                
+                                <div class="steps" id="selectFeature_div" style="display: none;">
+                                    <p>Select protected/sensitive feature you want to debias</p>
+                                    <!-- <select class="form form-control" name="lablebias-postprediction-features" id="lablebias-postprediction-features" multiple></select> -->
+                                    <div id="postlablebias-selectfeature"></div>
+                                </div>
+                                <div class="steps" id="selectVariable_div" style="display: none;">
+                                    <p>Select target variable</p>
+                                    <!-- <select class="form form-control" name="lablebias-postprediction-variable" id="lablebias-postprediction-variable"></select> -->
+                                    <div id="postlablebias-selectvariable"></div>
+                                </div>
+                                <div class="steps" id="selectTargetCat_div" style="display: none;">
+                                    <p>Select a Primary Target Category</p>
+                                    <div id="postlablebias-target-categories">
+                                    <select class="form form-control" name="postlablebias-target-category-list" id="postlablebias-target-category-list">
+                                    <option selected disabled hidden>Select a target variable first.</option>
+                                    </select></div>
+                                </div>
+                                <div class="steps" id="selectTarget_div" style="display: none;">
+                                    <p>Select Accuracy Metrics</p>
+                                    <!-- <input type="radio" id="acc_metrics-precision_recall" name="acc_metrics" value="precision_recall"><label for="acc_metrics">Precision & Recall</label>
+                                    &nbsp;
+                                    <input type="radio" id="acc_metrics-tpr_fpr" name="acc_metrics" value="tpr_fpr"><label for="acc_metrics">TPR & FPR</label> -->
+                                    <input type="radio" name="acc_metrics" value="precision_recall" checked> Precision & Recall&nbsp;
+                                    <input type="radio" name="acc_metrics" value="tpr_fpr"> TPR & FPR
+                                </div>
+                                <div class="steps" id="bias_method_div" style="display: none;">
+                                    <br><p>Select Bias Detection Method</p>
+                                    <input type="radio" id="postlablebias-bias-method1" name="bias_metrics" value="distance" checked> Euclidean Distance&nbsp;
+                                    <input type="radio" id="postlablebias-bias-method2" name="bias_metrics" value="pvalue"> 2 Sampled KS Test
+                                </div>
+                                <div class="steps" id="post_bias_threshold_div" style="display: none;">
+                                    <br><p>Select Bias Detection Threshold</p>
+                                    <input type="range" name="post_bias_threshold" id="post_bias_threshold" value="5" min="0" max="200" oninput="this.nextElementSibling.value = this.value">
+                                    <output id="bias_threshold_id">5</output>
+                                </div>
+                
+                                <div id="generateReport_div" style="display: none;">
+                                    <button class="btn btn-warning" id="postlablebias-reportbtn">SUBMIT</button>
+                                </div>
+                            </div>
+                            <!-- <div>
+                                <div id="post-prediction_outputDiv" style="display: none;">
+                                    <div id="post-prediction_outputDiv1"></div>
+                                    <div id="post-prediction_outputDiv2"></div>
+                                </div>
+                            </div>  -->
+
+                        </div>
+                    </div>
+            
+                </div>
+
+                <div class="col-sm-12" style="padding: 0;">
+                    <div id="structureddata_output_div">
+                        <div style="text-align: center;">
+                            <h3>FAIRNESS - STRUCTURED REPORT</h3>
+                        </div>
+                        <div id="show_output">
+
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+    
+        </div>
+
+        <div id="spinner_div" style="display: none;">
+            <div class="spinner-border" role="status" style="color: #A100FF;">
+                <span class="sr-only"></span>
+            </div>
+            <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;">Loading...</span></div>
+        </div>
+    </div>
+
+    <script>
+        my_data = `{{ bias_html|safe }}`
+        if(my_data==`1`){
+            function openTab(evt, cityName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(cityName).style.display = "block";
+                evt.currentTarget.className += " active";
+            }
+            document.getElementById("defaultOpenSamplebias").click();
+
+            let data = {'method': "GET", 'url': "{% url 'samplebiasgetfeatures' %}"};
+            $("#spinner_div").css('display', 'block');
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let features_list = data['dataset_columns']
+                    let html = '';
+                    let samplebiasfeatures = 'samplebiasfeatures'
+                    html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="samplebiasfeatures">&nbsp;'+
+                        '&nbsp;<label>Select All</label></span><br>';
+                    $.each(features_list, function(index, item) {
+                        //$("#dataset-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="checkbox" id="feature-'+index+'" name="samplebiasfeatures" value="'+item+'">&nbsp;'+
+                        '&nbsp;<label for="samplebiasfeatures">'+item+'</label></span><br>';
+                    });
+                    $("#step2").css('display', 'block');
+                    $("#samplebias-selectfeatures").append(html);
+                    $("#spinner_div").css('display', 'none');
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        }
+
+        $(document).on('click', '#upload_dataset_file_btn', function(){
+            $("#spinner_div").css('display', 'block');       
+        });
+
+        /*$(document).on('change', "#samplebiasfeatures-selectall", function(){
+            var checked;
+            if($("#samplebiasfeatures-selectall").prop('checked')){
+                checked = true;
+            }else{
+                checked = false;
+            }
+            selectAndDeselectAllCheckBox($("#samplebiasfeatures-selectall").prop('name'), checked);
+        });*/
+
+        /*$("#samplebias-dataset-file").change(function(){
+            var formData = new FormData();
+            formData.append("file", $("input[id^='samplebias-dataset-file']")[0].files[0]);
+            //formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            let data = {'method': "POST", 'url': "{% url 'samplebiasgetfeatures' %}", "data": formData};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let features_list = data['dataset_columns']
+                    //$("#dataset-features").append($("<option />").val('select').text('Select Feature'));
+                    $.each(features_list, function(index, item) {
+                        $("#dataset-features").append($("<option />").val(item).text(item));
+                    });
+                    $("#step2").css('display', 'block');
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        });*/
+
+
+        $(document).on('click', "#samplebias-submitbtn", function(){
+            //let selected_features = $('#dataset-features').val();
+            var selected_features = [];
+            $("input[name^='samplebiasfeatures']:checked").each(function() {
+                selected_features.push($(this).val());
+            });
+            var width = window.innerWidth - 100;
+            if(selected_features.length>0){
+                $("#spinner_div").css('display', 'block');
+                //let data = {'method': "POST", 'url': "{% url 'samplebiassubmit' %}", "data": JSON.stringify({'selected_features':selected_features})};
+                let data = {'method': "POST", 'url': "{% url 'samplebiassubmit' %}", "data": JSON.stringify({'selected_features':selected_features, 'width':width})};
+                ajaxCall(data, function(data){
+                    data = JSON.parse(data);
+                    if(data['status']==200){
+                        $("#structureddata_output_div").css('display', 'block');
+                        if(document.getElementById('samplebias_report')!=null){
+                            $("#samplebias_report").remove();
+                        }
+
+                        let html = '<div class="bias_report_desc" id="samplebias_report">'+
+                            '<h4>Sample Bias Report <span title="More Info" class="moreinfo_icon" id="samplebiasinfo"><i class="fa-solid fa-circle-info"></i></span></h4>';
+                        html += '<div class="moreinfo_div" id="samplebiasinfo_div"><b>With a confidence interval of 95%, confidence score more than 0.95 (95%) indicates presence of strong sample bias for the feature.</b></div>';
+                        html += '<div><p style = "color:#5a5a5a">Protected/sensitive features:</p>';
+                        html += '<small>'+data['selected_features']+'</small>';
+                            // $.each(data['selected_features'], function(index, item){
+                        //     html += '<small>'+item+'</small>, ';
+                        // });
+                        html += '</div>';
+                        html += '<div class="bias_output" id="samplebias_outputDiv">';
+                        html += '<h6> Confidence Score Favouring Sample Bias</h6>';
+                        $.each(data['samplebias_output'], function(index, item){
+                            html += '<small>'+item+'</small><br>';
+                        });
+                        //$("#samplebias_outputDiv").append(html);
+                        html += '</div></div>';
+                        $("#show_output").append(html);
+                        //if (data['is_show_samplebias_image']>0){
+                        /*let image = '<div id="samplebias_img"><img src={{samplebias_imgurl}}/sample_bias.png></div>';
+                        $("#samplebias_outputDiv").append(image)*/
+                        let image = '<div id="samplebias_img">';
+                        if(data['samplebias_graph']==0){
+                            image += '<h5>No data generated</h5>';
+                        }else{
+                            /*var img= new Image();
+                            img.src = 'data:image/png;base64,'+data['html_samplebias_fig'];
+                            image += img;*/
+
+                            image += data['html_samplebias_fig'];
+                            /*image += '<img src={{samplebias_imgurl}}/sample_bias.png>';
+                            $("#samplebias_outputDiv").html('');*/
+                        }
+                        image += '</div>';
+                        $("#samplebias_outputDiv").append(image);
+                        //}
+                        //let image = data['html_samplebias_fig'];
+                        //$("#samplebias_outputDiv").append(image)
+                        $("#spinner_div").css('display', 'none');
+                        $("#samplebias_report")[0].scrollIntoView();
+                        //$(".mpld3-figure").css('width', '100%');
+                    }else{
+                        alert("Something went wrong");
+                    }
+                });
+            }else{
+                $("#samplebias-selectfeatures").css('border', '1.5px solid red');
+            }
+        });
+
+        /*$("#labelbias-dataset-file").change(function(){
+            var formData = new FormData();
+            formData.append("file", $("input[id^='labelbias-dataset-file']")[0].files[0]);
+            //formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            let data = {'method': "POST", 'url': "{% url 'labelbiasgetfeatures' %}", "data": formData};*/
+        
+            $(document).on('click', "#defaultAggregationBias", function () {
+                let data = { 'method': "GET", 'url': "{% url 'aggregationbiasgetfeatures' %}" };
+                $("#spinner_div").css('display', 'block');
+                ajaxCall(data, function (data) {
+                    data = JSON.parse(data);
+                    if (data['status'] == 200) {
+                        let features_list = data['dataset_columns']
+                        let html = '';
+                        //let samplebiasfeatures = 'aggregationbiasfeatures'
+                        //html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="aggregationbiasfeatures">&nbsp;' +
+                        //    '&nbsp;<label>Select All</label></span><br>';
+                        $.each(features_list, function (index, item) {
+                            html += '<span><input type="radio" id="feature-' + index + '" name="aggregationbiasfeatures" value="' + item + '">&nbsp;' +
+                                '&nbsp;<label for="aggregationbiasfeatures">' + item + '</label></span><br>';
+                        });
+                        $("#aggregationbias-selectfeatures").html('');
+                        $("#aggregationbias-selectfeatures").append(html);
+                        html = '';
+                        //html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="aggregationbiasfeatures">&nbsp;' +
+                        //    '&nbsp;<label>Select All</label></span><br>';
+                        $.each(features_list, function (index, item) {
+                            html += '<span><input type="checkbox" id="feature-' + index + '" name="aggregationbiasignore" value="' + item + '">&nbsp;' +
+                                '&nbsp;<label for="aggregationbiasfeatures">' + item + '</label></span><br>';
+                        });
+                        $("#aggregationbias-ignore-columns").html('');
+                        $("#aggregationbias-ignore-columns").append(html);
+                        html = '';
+                        //html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="aggregationbiasfeatures">&nbsp;' +
+                        //    '&nbsp;<label>Select All</label></span><br>';
+                        $.each(features_list, function (index, item) {
+                            html += '<span><input type="checkbox" id="feature-' + index + '" name="aggregationbiasbin" value="' + item + '">&nbsp;' +
+                                '&nbsp;<label for="aggregationbiasfeatures">' + item + '</label></span><br>';
+                        });
+                        $("#aggregationbias-bin-columns").html('');
+                        $("#aggregationbias-bin-columns").append(html);
+                        $("#aggregation-step1").css('display', 'block');
+                        $("#aggregation-step2").css('display', 'block');
+                        $("#aggregation-step3").css('display', 'block');
+                        $("#aggregation-step4").css('display', 'block');
+                        $("#aggregation-step5").css('display', 'block');
+                        $("#aggregation-step6").css('display', 'block');
+                        $("#spinner_div").css('display', 'none');
+                    } else {
+                        alert("Something went wrong");
+                        $("#spinner_div").css('display', 'none');
+                    }
+                });
+            });        
+            $(document).on('click', "#aggregationbias-submitbtn", function () {
+                var dependent_variables = $("input[name^='aggregationbiasfeatures']:checked").val();
+                var ignore_columns = [];
+                $("input[name^='aggregationbiasignore']:checked").each(function () {
+                    ignore_columns.push($(this).val());
+                });
+                let bin_columns = [];
+                $("input[name^='aggregationbiasbin']:checked").each(function () {
+                    bin_columns.push($(this).val());
+                });
+                let standardize = $('input[name=radAnswer3]:checked').val();
+                let bin_method = $('input[name=radAnswer4]:checked').val();
+                let weighting = $('input[name=radAnswer5]:checked').val();
+        
+                let max_p_value = $('#max-p-value').val();
+                let min_coeff = $('#min-coeff').val();
+                let min_corr = $('#min-corr').val();
+                $("#spinner_div").css('display', 'block');
+                let features = {
+                    'dependent_variable': dependent_variables,
+                    'ignore_columns': ignore_columns,
+                    'bin_columns': bin_columns,
+                    "standardize": standardize,
+                    "bin_method": bin_method,
+                    "weighting": weighting,
+                    "max_P_value": max_p_value,
+                    "min_coeff": min_coeff,
+                    "min_corr": min_corr
+                }
+                let data = { 'method': "POST", 'url': "{% url 'aggregationbiassubmit' %}", "data": JSON.stringify(features) };
+                ajaxCall(data, function (data) {
+                    data = JSON.parse(data);
+                    if (data['status'] == 200) {
+                        if(document.getElementById('aggregationbias_output')!=null){
+                            $("#aggregationbias_output").remove();
+                        }
+                        let html = '';
+                        $("#structureddata_output_div").css('display', 'block');
+                        html = "<div id='aggregationbias_output'><p>" + data['output']['msg'] + "</p>" + data['output']['simpsons_pairs'] + "<div id='aggregationbias_table'></div></div>";
+                        $("#show_output").append(html);
+                        html = '';
+                        $.each(data['output']['output'], function (index, item) {
+                            html += item;
+                        });
+                        $("#aggregationbias_table").html(html);
+                        $("#aggregationbias_output").css('display', 'block');
+                        $("#spinner_div").css('display', 'none');
+                    }
+                    else {
+                        $("#spinner_div").css('display', 'none');
+                        alert("Something went wrong");
+                    }
+                });
+            });
+        
+        $(document).on('click', "#defaultOpenLabelbias", function(){
+            $("#spinner_div").css('display', 'block');
+            let data = {'method': "GET", 'url': "{% url 'labelbiasgetfeatures' %}"};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let cat_features_list = data['categorical_dataset_columns'];
+                    let num_features_list = data['continuous_dataset_columns'];
+                    let full_features_list = data['target_dataset_columns'];
+
+                    let html = '';
+                    html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="prelablebiascatgfeatures">&nbsp;'+
+                        '&nbsp;<label for="prelablebiascatgfeatures">Select All</label></span><br>';
+                    $.each(cat_features_list, function(index, item) {
+                        //$("#labelbias-categorical-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="checkbox" id="feature-'+index+'" name="prelablebiascatgfeatures" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="prelablebiascatgfeatures">'+item+'</label></span><br>';
+                    });
+                    $("#labelbias-step2").css('display', 'inline-block');
+                    $("#prelablebias-selectcatgfeatures").html('');
+                    $("#prelablebias-selectcatgfeatures").append(html);
+
+                    /*let data1 = {'method': "POST", 'url': "{% url 'labelbiasgetfeatures' %}", "data": formData};
+                    ajaxCall(data1, function(data1){
+                        data1 = JSON.parse(data1);
+                        if(data1['status']==200){
+                            let features_list = data1['categorical_dataset_columns']
+                            //$("#labelbias-continuous-features").append($("<option />").val('select').text('Select Feature'));
+                            $.each(features_list, function(index, item) {
+                                $("#labelbias-continuous-features").append($("<option />").val(item).text(item));
+                            });
+                            $("#step3").css('display', 'block');
+                            let data2 = {'method': "POST", 'url': "{% url 'labelbiasgetfeatures' %}", "data": formData};
+                            ajaxCall(data2, function(data2){
+                                data2 = JSON.parse(data2);
+                                if(data2['status']==200){
+                                    let features_list = data2['categorical_dataset_columns']
+                                    //$("#labelbias-target-features").append($("<option />").val('select').text('Select Feature'));
+                                    $.each(features_list, function(index, item) {
+                                        $("#labelbias-target-features").append($("<option />").val(item).text(item));
+                                    });
+                                    $("#step4").css('display', 'block');
+                                }else{
+                                    alert("Something went wrong");
+                                }
+                            });
+                        }else{
+                            alert("Something went wrong");
+                        }
+                    });*/
+
+                    html = '';
+                    html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="prelablebiascontfeatures">&nbsp;'+
+                        '&nbsp;<label for="prelablebiascontfeatures">Select All</label></span><br>';
+                    $.each(num_features_list, function(index, item){
+                        //$("#labelbias-continuous-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="checkbox" id="feature-'+index+'" name="prelablebiascontfeatures" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="prelablebiascontfeatures">'+item+'</label></span><br>';
+                    });
+                    $("#step3").css('display', 'inline-block');
+                    $("#prelablebias-selectcontfeatures").html('');
+                    $("#prelablebias-selectcontfeatures").append(html);
+
+                    html = '';
+                    $.each(full_features_list, function(index, item) {
+                        //$("#labelbias-target-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="radio" id="feature-'+index+'" name="prelablebiastarget" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="prelablebiastarget">'+item+'</label></span><br>';
+                    });
+                    $("#step4").css('display', 'inline-block');
+                    $("#prelablebias-selecttarget").html('');
+                    $("#prelablebias-selecttarget").append(html);
+                    $("#spinner_div").css('display', 'none');
+                }else{
+                    alert("Something went wrong");
+                }
+            }); 
+        });
+
+        $(document).on('click', "#labelbias-submitbtn", function(){
+            //let selected_categorical_features = $('#labelbias-categorical-features').val();
+            var selected_categorical_features = [];
+            $("input[name^='prelablebiascatgfeatures']:checked").each(function() {
+                selected_categorical_features.push($(this).val());
+            });
+            //let selected_continuous_features = $('#labelbias-continuous-features').val();
+            var selected_continuous_features = [];
+            $("input[name^='prelablebiascontfeatures']:checked").each(function() {
+                selected_continuous_features.push($(this).val());
+            });
+            //let selected_target_features = $('#labelbias-target-features').val();
+            let selected_target_features;
+            $("input[name^='prelablebiastarget']:checked").each(function() {
+                selected_target_features = $(this).val();
+            });
+            
+            $("#spinner_div").css('display', 'block');
+            let features = {'selected_categorical_features':selected_categorical_features,'selected_continuous_features':selected_continuous_features,'selected_target_features':selected_target_features}
+            let data = {'method': "POST", 'url': "{% url 'labelbiassubmit' %}", "data": JSON.stringify(features) };
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    //$("#labelbias_outputDiv").css('display', 'block');
+                    $("#structureddata_output_div").css('display', 'block');
+                    if(document.getElementById('prelablebias_report')!=null){
+                        $("#prelablebias_report").remove();
+                    }
+
+                    let html = '<div class="bias_report_desc" id="prelablebias_report">'+
+                        '<h4>Pre Prediction - Label Bias Report <span title="More Info" class="moreinfo_icon" id="prelablebiasinfo"><i class="fa-solid fa-circle-info"></i></span></h4>';
+                    html += '<div class="moreinfo_div" id="prelablebiasinfo_div"><b>With a confidence interval of 95%, p-value less than 0.05 (5%) indicates strong evidence that specific label is biased.</b></div>';
+                    html += '<div><p>Categorical features:</p>';
+                    $.each(data['user_selection']['selected_categorical_features'], function(index, item){
+                        html += '<small>'+item+'</small>, ';
+                    });
+                    html += '<p>Continous features:</p>';
+                    $.each(data['user_selection']['selected_continuous_features'], function(index, item){
+                        html += '<small>'+item+'</small>, ';
+                    });
+                    html += '<p>Target:</p>';
+                    html += '<small>'+data['user_selection']['selected_target_features']+'</small>';
+                    html += '</div>';
+
+                    html += '<div class="bias_output" id="labelbias_outputDiv">';
+                    $.each(data['labelbias_output'], function(index, item){
+                        html += '<p>'+item+'</p>';
+                    });
+                    //$("#labelbias_outputDiv").append(html);
+                    html += '<div id="labelbias_images"></div></div></div>';
+                    $("#show_output").append(html);
+                    let images = '';
+                    $.each(data['listOfFiles'], function(index, item){
+                        console.log(item)
+                        images += "<img src={{labelbiasurl}}/"+item+">";
+                        });
+                    $("#labelbias_images").append(images);
+                    $("#spinner_div").css('display', 'none');
+                    $("#prelablebias_report")[0].scrollIntoView();
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        });
+
+        /*$("#exclusionbias-dataset-file").change(function(){
+            var formData = new FormData();
+            formData.append("file", $("input[id^='exclusionbias-dataset-file']")[0].files[0]);
+            //formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            let data = {'method': "POST", 'url': "{% url 'exclusionbiasgetfeatures' %}", "data": formData};*/
+        $(document).on('click', "#defaultOpenExclusionbias", function(){
+            $("#spinner_div").css('display', 'block');
+            let data = {'method': "GET", 'url': "{% url 'exclusionbiasgetfeatures' %}"};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let features_list = data['dataset_columns']
+                    //$("#dataset-features").append($("<option />").val('select').text('Select Feature'));
+
+                    let html = '';
+                    html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="exclusionbiasfeatures">&nbsp;'+
+                        '&nbsp;<label for="exclusionbiasfeatures">Select All</label></span><br>';
+                    $.each(features_list, function(index, item) {
+                        //$("#exclusionbias-protected-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="checkbox" id="feature-'+index+'" name="exclusionbiasfeatures" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="exclusionbiasfeatures">'+item+'</label></span><br>';
+                    });
+                    $("#exclusionbias-step2").css('display', 'inline-block');
+                    $("#exclusionbias-selectfeatures").html('');
+                    $("#exclusionbias-selectfeatures").append(html);
+
+                    html = '';
+                    $.each(features_list, function(index, item) {
+                        //$("#exclusionbias-target-features").append($("<option />").val(item).text(item));
+                        html += '<span><input type="radio" id="feature-'+index+'" name="exclusionbiastarget" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="exclusionbiastarget">'+item+'</label></span><br>';
+                    });
+                    $("#exclusionbias-step3").css('display', 'inline-block');
+                    $("#exclusionbias-selecttarget").html('');
+                    $("#exclusionbias-selecttarget").append(html);
+
+                    $("#exclusionbias-step4").css('display', 'block');  
+                    $("#exclusionbias-step5").css('display', 'block');
+                    $("#exclusionbias-step6").css('display', 'block');
+                    $("#spinner_div").css('display', 'none');
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        });
+
+        $(document).on('click', "#exclusionbias-submitbtn", function(){
+            //let selected_protected_features = $('#exclusionbias-protected-features').val();
+            var selected_protected_features = [];
+            $("input[name^='exclusionbiasfeatures']:checked").each(function() {
+                selected_protected_features.push($(this).val());
+            });
+            //let selected_target_features = $('#exclusionbias-target-features').val();
+            var selected_target_features;
+            $("input[name^='exclusionbiastarget']:checked").each(function() {
+                selected_target_features = $(this).val();
+            });
+            let selected_radio_features = $('input[name=radAnswer]:checked').val();
+            let selected_radio_1_features = $('input[name=radAnswer1]:checked').val();
+            let selected_radio_2_features = $('input[name=radAnswer2]:checked').val();
+            $("#spinner_div").css('display', 'block');
+            let features = {'selected_protected_features':selected_protected_features,'selected_target_features':selected_target_features,'selected_radio_features':selected_radio_features,'selected_radio_1_features':selected_radio_1_features,'selected_radio_2_features':selected_radio_2_features}
+            let data = {'method': "POST", 'url': "{% url 'exclusionbiassubmit' %}", "data": JSON.stringify(features) };
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    //$("#exclusionbias_outputDiv").css('display', 'block');
+                    $("#structureddata_output_div").css('display', 'block');
+                    if(document.getElementById('exclusionbias_report')!=null){
+                        $("#exclusionbias_report").remove();
+                    }
+
+                    let html = '<div class="bias_report_desc" id="exclusionbias_report">'+
+                        '<h4>Exclusion Bias Report <span title="More Info" class="moreinfo_icon" id="exclusionbiasinfo"><i class="fa-solid fa-circle-info"></i></span></h4>';
+                    html += '<div class="moreinfo_div" id="exclusionbiasinfo_div">'+
+                        '<b>A strong positive correlation (e.g., Z & A, usually ≥ 0.6) or negative correlation score (e.g., X & C, ≤ -0.6) indicates that two variables move in same or opposite direction respectively and, excluding one of them will not result in Exclusion Bias.'+
+                            'On the other hand, zero score (e.g., Y & B) or score between -0.6 to 0.6 indicates nil or weak correlation between variables respectively, thus excluding any one of them will result in Exclusion bias.'+
+                            '</b><br><img src="{{imgurl}}/exclusionbias_info.png"></div>';
+                    html += '<div><p style="color:#5a5a5a">Protected/Sensitive features:</p>';
+                    $.each(data['user_selection']['selected_protected_features'], function(index, item){
+                        html += '<small>'+item+'</small>, ';
+                    });
+                    html += '<small style="color:#5a5a5a">Target</p>';
+                    html += '<small>'+data['user_selection']['selected_target_features']+'</small>';
+                    html += '<p style="color:#5a5a5a">Categorical-Categorical Correlation Measure</p>';
+                    html += '<small>'+data['user_selection']['selected_radio_features']+'</small>';
+                    html += '<p style="color:#5a5a5a">Categorical-Continuous Correlation Measure</p>';
+                    html += '<small>'+data['user_selection']['selected_radio_1_features']+'</small>';
+                    html += '<p style="color:#5a5a5a">Continuous-Continuous Correlation Measure</p>';
+                    html += '<small>'+data['user_selection']['selected_radio_2_features']+'</small>';
+                    html += '</div>';
+                    
+                    html += '<div class="bias_output" id="exclusionbias_outputDiv">';
+                    $.each(data['exclusionbias_output'], function(index, item){
+                        html += '<p>'+item+'</p>';
+                    });
+                    //$("#exclusionbias_outputDiv").append(html);
+                    html += '<div id="exclusionbias_images"></div></div></div>'
+                    $("#show_output").append(html);
+                    let images = '';
+                    $.each(data['listOfFiles'], function(index, item){
+                        console.log(item)
+                        images += "<img src={{exclusionbiasurl}}/"+item+">";
+                    });
+                    $("#exclusionbias_images").append(images);
+                    $("#spinner_div").css('display', 'none');
+                    $("#exclusionbias_report")[0].scrollIntoView();
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        });
+    
+    </script>
+
+    <script>
+        $('input[type=radio][name=bias_metrics]').change(function() {
+                        
+            if ($('input[name="bias_metrics"]:checked').val() == "distance") {
+                $('#post_bias_threshold').attr({
+                    'max': 200
+                });
+            }
+            if ($('input[name="bias_metrics"]:checked').val() == "pvalue") {
+                $('#post_bias_threshold').attr({
+                    'max': 100
+                });
+            }
+            $('#post_bias_threshold').val(5);
+            $("#bias_threshold_id").val(5);
+        });
+
+        $("#postlablebias-selectvariable").change(function (){
+        $("input[name^='postlablebiasvariable']:checked").each(function() {
+            selected_target = $(this).val();
+        });
+
+        let data = { 'method': "GET", 'url': "{% url 'lablebiaspostprediction' %}", "data": selected_target};
+        ajaxCall(data, function (data) {
+            data = JSON.parse(data);
+            if (data['status'] == 200) {
+
+                let target_set = data['target_set'];
+                $("#postlablebias-target-category-list").html('');
+                $.each(target_set, function(index, item) {
+                    $("#postlablebias-target-category-list").append($("<option />").val(item).text(item));
+                });
+                $("#selectTargetCat_div").css('display', 'block');
+                $("#steps").css('display', 'block');
+            } else {
+                alert("Something went wrong");
+            }
+            }
+            );
+        }); 
+
+        $(document).on('click', '#postlablebias-submitbtn', function(){
+            $("#spinner_div").css('display', 'block');
+            var formData = new FormData();
+            formData.append("prediction_file", $("input[name^='prediction_file']")[0].files[0]);
+            if (formData.get('prediction_file') == 'undefined') {
+                alert("Please select a predictions file.");        
+                $("#spinner_div").css('display', 'none');  
+            }
+            let data = {'method': "POST", 'url': "{% url 'lablebiaspostprediction' %}", "data": formData};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    $("#post-predictions-form_div").css('display', 'none');
+                    let features_list = data['test_data_columns'];
+                    let target_columns = data['target_columns'];
+
+                    let html = '';
+                    html += '<span><input type="checkbox" onClick="selectAndDeselectAllCheckBox(this)" value="postlablebiasfeatures">&nbsp;'+
+                        '&nbsp;<label for="postlablebiasfeatures">Select All</label></span><br>';
+                    $.each(features_list, function(index, item) {
+                        html += '<span><input type="checkbox" id="feature-'+index+'" name="postlablebiasfeatures" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="postlablebiasfeatures">'+item+'</label></span><br>';
+                    });
+                    $("#selectFeature_div").css('display', 'inline-block');
+                    $("#postlablebias-selectfeature").append(html);
+
+                    html = '';
+                    $.each(target_columns, function(index, item) {
+                        html += '<span><input type="radio" id="feature-'+index+'" name="postlablebiasvariable" value="'+item+'">&nbsp;'+
+                            '&nbsp;<label for="postlablebiasvariable">'+item+'</label></span><br>';
+                    });
+                    $("#selectVariable_div").css('display', 'inline-block');
+                    $("#postlablebias-selectvariable").append(html);
+                    $("#selectTargetCat_div").css('display', 'block');
+                    $("#selectTarget_div").css('display', 'block');
+                    $("#bias_method_div").css('display', 'block');
+                    $("#post_bias_threshold_div").css('display', 'block');
+                    $("#generateReport_div").css('display', 'block');
+                    $("#postlablebias-backBtn").css('display', 'block');
+                    $("#spinner_div").css('display', 'none');     
+                }else if(data['status']==210){
+                    alert("Predictions file is either corrupt or not in CSV format. Please upload a valid file.");        
+                    $("#spinner_div").css('display', 'none');       
+                }else if(data['status']==250){
+                    alert("Dataset File and Predictions must have equal number of records. Predictions file must not contain missing values.");        
+                    $("#spinner_div").css('display', 'none');       
+                }else if(data['status']==220){
+                    alert("Predictions file must contain a single column with probability/label values.");        
+                    $("#spinner_div").css('display', 'none');       
+                }else if(data['status']==280){
+                    alert("Predictions file must contain values between 0 and 1.");        
+                    $("#spinner_div").css('display', 'none');       
+                }
+                else{
+                    alert("Something went wrong");
+                    $("#spinner_div").css('display', 'none');
+                }
+            });
+        });
+
+        $(document).on('click', '#postlablebias-backBtn', function(){
+            $("#postlablebias-selectfeature").html('');
+            $("#selectFeature_div").css('display', 'none');
+            $("#postlablebias-selectvariable").html('');
+            $("#selectVariable_div").css('display', 'none');
+            $("#selectTargetCat_div").css('display', 'none');
+            $("#selectTarget_div").css('display', 'none');
+            $("#bias_method_div").css('display', 'none');
+            $("#post_bias_threshold_div").css('display', 'none');
+            $("#generateReport_div").css('display', 'none');
+            $("#post-predictions-form_div").css('display', 'block');
+        });
+        
+        function post_pred_get_report(num_flag) {
+            var selected_features = [];
+            $("input[name^='postlablebiasfeatures']:checked").each(function() {
+                selected_features.push($(this).val());
+            });
+            var selected_target = '';
+            $("input[name^='postlablebiasvariable']:checked").each(function() {
+                selected_target = $(this).val();
+            });
+            let selected_acc_metrics = $('input[name="acc_metrics"]:checked').val();
+            let target_category = $('#postlablebias-target-category-list').val();
+            let selected_bias_metrics = $('input[name="bias_metrics"]:checked').val();
+            let bias_threshold = $('#post_bias_threshold').val();
+
+            //Exception Handling
+            if(selected_features.length == 0) {
+                alert("Please select protected features.");
+            } else if(selected_target.length == 0) {
+                alert("Please select a target feature.");
+            } else if(selected_features.includes(selected_target)) {
+                alert("Protected Variables and Target Variable must be distinct.");
+            } else {
+                $("#spinner_div").css('display', 'block');
+                let selected_data = {'selected_features': selected_features, 'selected_target':selected_target, 'selected_acc_metrics':selected_acc_metrics, 
+                'target_category':target_category, 'selected_bias_metrics':selected_bias_metrics, 'bias_threshold':bias_threshold, 'num_flag':num_flag}
+                let data = {'method': "POST", 'url': "{% url 'generate_dissimilarity_report' %}", "data": JSON.stringify(selected_data)};
+                ajaxCall(data, function(data){
+                    data = JSON.parse(data);
+                    if(data['status']==200){
+                        $("#structureddata_output_div").css('display', 'block');
+                        if(document.getElementById('postlablebias_report')!=null){
+                            $("#postlablebias_report").remove();
+                        }
+
+                        let html = '<div class="bias_report_desc" id="postlablebias_report"><h4>Post Prediction - Label Bias Report</h4>';
+                        html += '<div><p>Protected/Sensitive features:</p>';
+                        html += '<small>'+data['user_selection']['selected_features']+'</small>';
+                        // $.each(data['user_selection']['selected_features'], function(index, item){
+                        //     html += '<small>'+item+'</small>, ';
+                        // });
+                        html += '<p>Target variable:</p>';
+                        html += '<small>'+data['user_selection']['selected_target']+'</small>';
+                        html += '<p>Accuracy metrics:</p>';
+                        html += '<small>'+data['user_selection']['selected_acc_metrics']+'</small>';
+                        html += '<p>Bias Metric:</p>';
+                        html += '<small>'+data['user_selection']['selected_bias_metrics']+'</small>';
+                        html += '<p>Bias Threshold:</p>';
+                        html += '<small>'+data['user_selection']['bias_threshold']+'</small>';
+                        html += '</div>';
+
+                        html += '<div class="bias_output">';
+                        html += '<div id="post-prediction_outputDiv1"></div>';
+                        html += data['html_postpredbias_fig'];
+                        html += '<div id="post-prediction_outputDiv2"></div>';
+                        html += '</div></div>';
+
+                        $("#show_output").append(html);
+                        $("#post-prediction_outputDiv1").html(data['result1']);
+                        $("#post-prediction_outputDiv2").html(data['result2']);
+
+                        $('#post-prediction_outputDiv1 table').addClass('table table-hover');
+                        $('#post-prediction_outputDiv2 table').addClass('table table-hover');
+                        $($("#post-prediction_outputDiv1 table th")[0]).html('SNo');
+                        $($("#post-prediction_outputDiv2 table th")[0]).html('SNo');
+                        $("#spinner_div").css('display', 'none');
+                        $("#postlablebias_report")[0].scrollIntoView();
+                    } else if(data['status']==380) {
+                        let text = "You have selected a Numerical Feature! Press Cancel to review the selected features. Press OK to continue.";
+                        if (confirm(text) == true) {
+                            post_pred_get_report(num_flag='False');
+                        } else {
+                            $("#spinner_div").css('display', 'none');
+                        }
+                    } else{
+                    alert("Something went wrong");
+                    $("#spinner_div").css('display', 'none');
+                    }
+                });
+            }
+        }
+
+        $(document).on('click', '#postlablebias-reportbtn', function(){
+            post_pred_get_report(num_flag='True');
+        });
+
+        
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();   
+        });
+    </script>
+    <script>
+        function scroll_to_bias_report(btn, div){
+            /*$('html, body').animate({
+                scrollTop: $(div).offset().top
+            }, 2000);*/
+            let submit_btn = document.querySelector(btn);
+            let elem = document.querySelector(div);
+            submit_btn.addEventListener('click', function () {
+                elem.scrollIntoView(true);
+            });
+        }
+
+        function selectAndDeselectAllCheckBox(checkboxName){
+            var action
+            if($(checkboxName).prop('checked')){
+                action = true;
+            }else{
+                action = false;
+            }
+            var ele=document.getElementsByName($(checkboxName).prop('value'));  
+            for(var i=0; i<ele.length; i++){  
+                if(ele[i].type=='checkbox')  
+                    ele[i].checked=action;  
+            }
+        }
+
+        $(document).on('click', ".moreinfo_icon", function(){
+            let elem = $(this).prop('id');
+            elem = elem+'_div';
+            let status = $("#"+elem).css('display');
+            if(status=='none'){
+                $("#"+elem).slideDown( "slow", function() {/* Animation complete.*/});
+            }else{
+                $("#"+elem).slideUp( "slow", function() {/* Animation complete.*/});
+            }
+        });
+    </script>
+    
+{% endblock %}

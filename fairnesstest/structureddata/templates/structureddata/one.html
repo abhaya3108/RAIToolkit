@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transparency</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'structureddata/css/one.css' %}" />
+    <script src="{% static 'structureddata/js/ajax.js' %}"></script>
+    {% block baseHead %}
+    {% endblock baseHead %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    
+</head>
+<body style="background-color: lavender;">
+    
+    <div style="min-height: 100%; padding: 2rem;">
+        <a href="#" style="text-decoration: none;">
+            <h1 class="alert alert-info" id="transparency_h1">
+                Fairness Test</h1>
+        </a>
+        <h3 class="alert alert-info" id="lable_head">Lable Bias - Post Prediction</h3>
+
+        <div class="row">
+            <div class="col-sm-4" id="input_div">
+
+                {% if form %}
+                    <form action="" method="POST" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- {{form.as_p}} -->
+                        
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <p class="alert alert-danger my-3">{{error}}</p>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% for fm in form %}
+                            <div class="form-group">
+                                {{fm.label_tag}} {{fm}} 
+                                <small>{{fm.errors|striptags}}</small>
+                                <br><br>
+                            </div>
+                        {% endfor %}
+                        <div style="text-align: center;">
+                            <input type="button" class="btn btn-primary" value="SUBMIT" id="submit_btn">
+                        </div>
+                        
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+            <div class="offset-sm-1 col-sm-7" id="output_div">
+                <div id="spinner_div" style="display: none; text-align: center;margin: 7rem 17rem;">
+                    <div class="spinner-border" role="status" style="color: #A100FF;">
+                        <span class="sr-only"></span>
+                    </div>
+                    <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;text-shadow: 1px 1px;">Loading...</span></div>
+                </div>
+
+                <div id="selectFeature_div" style="display: none;">
+                    <p>Select protected/sensitive feature you want to debias</p>
+                    <select class="form form-control" name="lablebias-postprediction-features" id="lablebias-postprediction-features" multiple></select>
+                </div>
+                <br>
+                <div id="selectVariable_div" style="display: none;">
+                    <p>Select target variable</p>
+                    <select class="form form-control" name="lablebias-postprediction-variable" id="lablebias-postprediction-variable"></select>
+                </div>
+                <br>
+                <div id="selectTarget_div" style="display: none;">
+                    <p>Select acc_metrics</p>
+                    <input type="radio" id="acc_metrics-precision_recall" name="acc_metrics" value="precision_recall"><label for="acc_metrics">Precision & Recall</label>
+                    &nbsp;
+                    <input type="radio" id="acc_metrics-tpr_fpr" name="acc_metrics" value="tpr_fpr"><label for="acc_metrics">TPR & FPR</label>
+                </div>
+
+                <div id="generateReport_div" style="display: none;">
+                    <button class="btn btn-warning" id="generateReport_btn">Generate Report</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).on('click', '#submit_btn', function(){
+            $("#spinner_div").css('display', 'block');
+            var formData = new FormData();
+            formData.append("test_file", $("input[name^='test_file']")[0].files[0]);
+            formData.append("prediction_file", $("input[name^='prediction_file']")[0].files[0]);
+            let data = {'method': "POST", 'url': "{% url 'lablebiaspostprediction' %}", "data": formData};
+            ajaxCall(data, function(data){
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    let features_list = data['test_data_columns'];
+
+                    $.each(features_list, function(index, item) {
+                        $("#lablebias-postprediction-features").append($("<option />").val(item).text(item));
+                    });
+                    $("#selectFeature_div").css('display', 'block');
+
+                    $.each(features_list, function(index, item) {
+                        $("#lablebias-postprediction-variable").append($("<option />").val(item).text(item));
+                    });
+                    $("#spinner_div").css('display', 'none');
+                    $("#selectVariable_div").css('display', 'block');
+
+                    $("#selectTarget_div").css('display', 'block');
+                    $("#generateReport_div").css('display', 'block');
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+        });
+
+        $(document).on('click', '#generateReport_btn', function(){
+            $("#spinner_div").css('display', 'block');
+            let selected_features = $('#lablebias-postprediction-features').val();
+            let selected_target = $('#lablebias-postprediction-variable').val();
+            let selected_acc_metrics = $('input[name="acc_metrics"]:checked').val();
+            let selected_data = {'selected_features': selected_features, 'selected_target':selected_target, 'selected_acc_metrics':selected_acc_metrics}
+            let data = {'method': "POST", 'url': "{% url 'generate_dissimilarity_report' %}", "data": JSON.stringify(selected_data)};
+            ajaxCall(data, function(data){
+                $("#spinner_div").css('display', 'none');
+                data = JSON.parse(data);
+                if(data['status']==200){
+                    $("#output_div").html('');
+                    $("#output_div").html(data['result']);
+                }
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+</body>
+</html>

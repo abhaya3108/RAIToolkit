@@ -1,0 +1,284 @@
+#robustnessContent{
+    margin: 2%;
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+}
+
+.RobustnessHeading{
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    color: #000;
+    background-color: white;
+    /* border-bottom: 0.313rem solid #A100FF; */
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 5px;
+}
+table, th, td {
+    border: 1px solid black;
+}
+
+table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+#structureddata_form_div{
+    margin-bottom: 1rem;
+    padding: 0;
+}
+
+#id_common_dataset_file{
+    width: 100%;
+    box-shadow: 2px 2px #a100ff;
+    border: none;
+}
+
+#upload_dataset_file_btn{
+    box-shadow: 5px 5px #d2d2d2d2;
+    border: none;
+    letter-spacing: 3px;
+    color: #000;
+    /* text-shadow: 1px 1px; */
+    font-weight: 700;
+    background-color: white;
+}
+#upload_dataset_file_btn:hover{
+    background-color: #A100FF;
+    color: white;
+}
+
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    /* background-color: white; */
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    /* border-right: 2px solid lightgray; */
+    width: 100%;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    /* background-color: #ddd; */
+    background-color: #A100FF;
+    color: white;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: white;
+    /* border-bottom: 2px solid #A100FF; */
+    font-weight: 700;
+
+    color: #000;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    /* padding: 6px 12px; */
+    border: 1px solid #ccc;
+    border-top: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    padding: 1rem 2rem;
+}
+
+/* Style the close button */
+.topright {
+    float: right;
+    cursor: pointer;
+    font-size: 28px;
+}
+
+.topright:hover {color: red;}
+
+.steps{
+    margin-bottom: 25px;
+}
+
+.form-control{
+    width: 50%;
+}
+
+#shap_submit_btn, #lime_submit_btn, #cam_submit_btn, #proto_submit_btn{
+    /* background-color: #A100FF; */
+    margin-top: 3%;
+    border: none;
+    letter-spacing: 3px;
+    color: #000;
+    font-weight: 700;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+#shap_submit_btn:hover, #lime_submit_btn:hover, #cam_submit_btn:hover, #proto_submit_btn:hover{
+    background-color: #A100FF;
+    color: white;
+}
+
+#shap_outputDiv, #lime_outputDiv ,#cam_outputDiv{
+    max-height: 150px;
+    overflow-y: scroll;
+    box-shadow: 0px 0px 5px inset;
+    padding: 2%;
+    border-radius: 5px;
+    border: 5px solid #A100FF;
+    color: #000;
+}
+#shap_images img{
+    width: 100%;
+}
+.column {
+    float: left;
+    width: 33.33%;
+    padding: 5px;
+  }
+  
+  /* Clearfix (clear floats) */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+
+
+
+
+
+
+
+
+
+
+/* <!----------------------------------------- Post-Prediction Lable Bias CSS -----------------------------------------> */
+#output_div p{
+    margin: 0;
+    font-weight: bold;
+}
+
+form label{
+    font-weight: 700;
+}
+
+form small{
+    color: red;
+    font-weight: 700;
+}
+
+#generateReport_div{
+    text-align: center;
+    margin-top: 1rem;
+}
+
+#submit_btn, #generateReport_btn{
+    box-shadow: 5px 5px #d2d2d2d2;
+    border: none;
+    letter-spacing: 3px;
+    color: white;
+    text-shadow: 1px 1px;
+    font-weight: 700;
+}
+#submit_btn:hover{
+    background-color: #763E9B;
+}
+
+#generateReport_btn:hover{
+    background-color: #763E9B;
+    color: white;
+}
+
+#post-prediction_outputDiv1{
+    margin-top: 2rem;
+}
+
+#post-prediction_outputDiv2{
+    margin-top: 2rem;
+}
+
+
+
+
+.infor{
+
+    max-height: 150px;
+    overflow-y: scroll;
+    box-shadow: 0px 0px 5px inset;
+    padding: 2%;
+    border-radius: 5px;
+    /* border: 5px solid black; */
+    color: #000;  
+    font-weight: normal;
+}
+
+
+
+
+
+
+
+
+
+/* spinner */
+#spinner_div{
+    text-align: center;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+
+
+#structureddata_output_div{
+    border: 1px solid #ccc;
+    /* border-top: none; */
+    background-color: #ffffff;
+    /* box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%); */
+    padding: 1rem;
+    margin-top: 2rem;
+    /* border-radius: 5px; */
+}
+
+#structureddata_output_div h3{
+    margin-bottom: 2rem;
+    color: white;
+    /* text-shadow: 1px 1px; */
+    /* border-bottom: 2px solid #000; */
+    font-weight: 700;
+    background-color: #A100FF;
+    letter-spacing: 3px;
+    word-spacing: 5px;
+}
+
+.report_div{
+    border-radius: 5px;
+    color: #000;
+    padding: 1rem;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    background-color: #f3f3f3;
+    margin: 1rem 0;
+}
+
+.report_div h4{
+    border-bottom: 2px solid #5a5a5a;
+    width: 50%;
+}

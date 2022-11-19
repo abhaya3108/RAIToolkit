@@ -1,0 +1,80 @@
+html,body{
+    height: 100%;
+}  
+
+#transparency_h1{
+    text-align: center;
+    background-color: white;
+    border: none;
+    color: #000;
+    text-shadow: 1px 1px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+#lable_head{
+    text-align: center;
+    border: none;
+    color: white;
+    background-color: #A100FF;
+    margin: 0;
+}
+
+#input_div{
+    /* margin: 0; */
+    background-color: white;
+    min-height: 20rem;
+    padding: 2rem;
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    color: #000;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+#output_div{
+    /* margin: 0; */
+    background-color: white;
+    min-height: 20rem;
+    padding: 1rem;
+    font-family: "Graphik Regular","Arial",Sans-Serif;
+    color: #000;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+#output_div p{
+    margin: 0;
+    font-weight: bold;
+}
+
+form label{
+    font-weight: 700;
+}
+
+form small{
+    color: red;
+    font-weight: 700;
+}
+
+#generateReport_div{
+    text-align: center;
+    margin-top: 1rem;
+}
+
+#submit_btn, #generateReport_btn{
+    box-shadow: 5px 5px #d2d2d2d2;
+    border: none;
+    letter-spacing: 3px;
+    color: white;
+    text-shadow: 1px 1px;
+    font-weight: 700;
+}
+#submit_btn:hover{
+    background-color: #763E9B;
+}
+
+#generateReport_btn:hover{
+    background-color: #763E9B;
+    color: white;
+}

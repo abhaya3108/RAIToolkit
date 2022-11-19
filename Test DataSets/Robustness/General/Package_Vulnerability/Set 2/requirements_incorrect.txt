@@ -1,0 +1,5 @@
+django==4.0.4
+pywin32-ctypes==0.2.0
+scikit-learn==0.24.2
+tensorflow-estimator==2.5.0
+lxml==4.6.0 

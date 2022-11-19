@@ -1,0 +1,165 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block head_block %}
+<link rel="stylesheet" href="{% static 'general/css/robustness.css' %}">
+{% endblock head_block %}
+
+{% block content %}
+{% static "general/images/" as roughimages %}
+<div id="robustnessContent">
+    <div style="text-align: center;">
+        <h3 class="RobustnessHeading">Robustness</h3>
+    </div>
+
+    <div class="row" style="padding-left: 1%;">
+        <div class="col-sm-2 tab" style="padding: 0;">
+            <div>
+                <button class="tablinks" onclick="openTab(event, 'robustness-pkg')"
+                    id="defaultOpenPkgVulnerability">Package Vulnerability</button>
+            </div>
+        </div>
+        <div id="robustness-pkg" class="tabcontent col-sm-10">
+            <!-- <div  id="main_div"> -->
+			<p style="font-weight: bold;">General Guidance :</p>
+			<div class="infor">
+				<p><b>Description:</b><a href="https://jfrog.com/knowledge-base/best-practices-for-package-vulnerability-scanning/" target="_blank"> Package vulnerability</a> scanning is the process of automatically analyzing software packages for known vulnerabilities. Vulnerability scanners can inspect virtually any type of package.</p>
+				<p><b>Input Format:</b> Requirement file (.txt - which contains all the packages/libraries along with versions used)</p>
+				<p><b>Output:</b> Audit status and vulnerability packages with correct versions to be used.</p>
+				<p><b>Scope:</b> It is limited to audit one requirement file at a time. </p>
+			</div>
+			<br>
+            {% if pkg_form %}
+            <form action="" method="post" novalidate enctype="multipart/form-data" id="pkg_form_div">
+                {% csrf_token %}
+                {% if pkg_form.non_field_errors %}
+                {% for error in pkg_form.non_field_errors %}
+                <p class="alert alert-danger my-3">{{error}}</p>
+                {% endfor %}
+                {% endif %}
+
+                {% for fm in pkg_form %}
+                <div class="form-group">
+                    {{fm.label_tag}} {{fm}}
+                    <small>{{fm.errors|striptags}}</small>
+                    <br>
+                </div>
+                {% endfor %}
+                <div style="text-align: center;">
+                    <input type="button" class="btn btn-primary" value="SUBMIT" id="pkg_submit_btn">
+                </div>
+
+            </form>
+            <!-- <div>
+                <table id="shap_outputDiv" style="display: none;"></table>
+                <div id="shap_images"></div>
+            </div> -->
+            <!-- <div>
+            </div> -->
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12" style="padding: 0;">
+            <div id="structureddata_output_div">
+                <div style="text-align: center;">
+                    <h3>ROBUSTNESS - GENERAL REPORT</h3>
+                </div>
+                <div id="show_output">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="spinner_div" style="display: none;">
+        <div class="spinner-border" role="status" style="color: #A100FF;">
+            <span class="sr-only"></span>
+        </div>
+        <div><span style="font-size: 18px;font-weight: 700;letter-spacing: 2px;">Loading...</span></div>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    document.getElementById("defaultOpenPkgVulnerability").click();
+
+    $(document).on('click', "#pkg_submit_btn", function () {
+        $("#spinner_div").css('display', 'block');
+        var formData = new FormData();
+        $('#pkg-output-div').html('');
+		formData.append("text_file", $("input[id^='requirement_file']")[0].files[0]);
+        if (formData.get("text_file") == 'undefined'){
+			alert("Please select a file");
+			$("#spinner_div").css('display', 'none');
+		}else{			
+			let data = { 'method': "POST", 'url': "{% url 'pkgvulnerability_submit' %}", "data": formData };
+			ajaxCall(data, function (data) {
+				data = JSON.parse(data);
+				if (data['status'] == 200) {
+					$("#show_output").append('<div class="report_div" id="pkg_report"></div><table id="pkg-output-table"></table>');
+					$("#pkg_report").append('<h4>Pkg Vulnerability Report:</h4>');
+					$('#pkg-output-table').html(data['result']);
+					$("#pkg-output-table").css('display', 'block');
+					$("#spinner_div").css('display', 'none');
+				} else if (data['status'] == 320){
+					alert("Please select a text file");
+					$("#spinner_div").css('display', 'none');
+				
+				} else {
+					alert("Something went wrong");
+					$("#spinner_div").css('display', 'none');
+					
+				}
+			});
+		}
+    });
+	
+	
+    // Builds the HTML Table out of myList.
+    function buildHtmlTable(myList, selector) {
+        var columns = addAllColumnHeaders(myList, selector);
+        var row$ = $('<tr/>');
+        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+            var cellValue = myList[columns[colIndex]];
+            if (cellValue == null) cellValue = "";
+            row$.append($('<td/>').html(cellValue));
+        }
+        $(selector).append(row$);
+    }
+
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records.
+    function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        var rowHash = myList;
+        for (var key in rowHash) {
+            if ($.inArray(key, columnSet) == -1) {
+                columnSet.push(key);
+                headerTr$.append($('<th/>').html(key));
+            }
+        }
+        $(selector).append(headerTr$);
+
+        return columnSet;
+    }
+</script>
+
+{% endblock %}
